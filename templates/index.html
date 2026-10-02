@@ -1,4 +1,136 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
+<section class="hero">
+    <p class="badge">
+        <span class="badge__avatars" aria-hidden="true"><span></span><span></span><span></span></span>
+        Khusus mahasiswa UI · terverifikasi @ui.ac.id
+    </p>
+    <h1 class="hero__title">Pasar Preloved<br>Kampus UI</h1>
+    <ul class="stats">
+        {% for stat in stats %}
+        <li class="stat">
+            <strong class="stat__value">{{ stat.value }}</strong>
+            <span class="stat__label">{{ stat.label }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    <p class="hero__text">
+        Jual-beli pakaian bekas antar mahasiswa UI, tanpa ongkir dan tanpa grup chat. COD langsung di titik temu<br>
+        resmi kampus.
+    </p>
+    <a class="btn btn--primary" href="#">Mulai jelajah katalog</a>
+</section>
+
+<section class="showcase" aria-label="Pratinjau katalog">
+    <div class="showcase__inner">
+        <div class="mockup" aria-hidden="true">
+            <div class="mockup__bar">
+                <span class="mockup__dots"><span></span><span></span><span></span></span>
+                <span class="mockup__url">reware.ui/katalog/atasan</span>
+            </div>
+            <div class="mockup__body">
+                <aside class="mockup__sidebar">
+                    <p class="mockup__label">Kategori</p>
+                    <ul class="category-list">
+                        {% for category in categories %}
+                        <li class="category{% if category.active %} is-active{% endif %}">
+                            <span>{{ category.name }}</span>
+                            <span class="category__count">{{ category.count }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </aside>
+                <div class="mockup__list">
+                    <div class="mockup__search">Cari brand atau item…</div>
+                    {% for item in items %}
+                    <div class="item">
+                        <span class="item__thumb"></span>
+                        <span class="item__text">
+                            <span class="item__name">{{ item.name }}</span>
+                            <span class="item__meta">{{ item.brand }} · {{ item.price }}</span>
+                        </span>
+                        <span class="pill pill--green">−{{ item.discount }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% with item=items.0 %}
+                <div class="mockup__detail">
+                    <div class="photo-slot">Foto item</div>
+                    <div class="detail__head">
+                        <div>
+                            <p class="detail__crumb">Atasan › {{ item.brand }}</p>
+                            <p class="detail__name">{{ item.name }}</p>
+                        </div>
+                        <p class="detail__price">{{ item.price }}</p>
+                    </div>
+                    <div class="detail__tags">
+                        <span class="pill pill--green pill--lg">Hemat {{ item.discount }}% dari retail</span>
+                        <span class="pill pill--olive pill--lg">Kondisi: Ada minus</span>
+                    </div>
+                    <div class="detail__actions">
+                        <span class="btn btn--dark">Ajukan COD</span>
+                        <span class="btn btn--dark">Chat Penjual</span>
+                    </div>
+                    <div class="detail__chips">
+                        <span class="chip">Area Kutek</span>
+                        <span class="chip">Penjual ★ 4,9</span>
+                    </div>
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+
+        <div class="float-card float-card--maps" aria-hidden="true">
+            <div class="float-card__slot">
+                <img class="float-card__maps" src="{% static 'img/card-maps.png' %}" alt="">
+            </div>
+        </div>
+        <div class="float-card float-card--wallet" aria-hidden="true">
+            <div class="float-card__slot">
+                <img class="float-card__frame" src="{% static 'img/card-wallet-frame.svg' %}" width="114.237" height="114.237" alt="">
+                <div class="float-card__wallet">
+                    <img src="{% static 'img/card-wallet.png' %}" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="brands">
+    <h2 class="section-title">Pakaian yang tetap dipakai, bukan dibuang</h2>
+    <ul class="brand-row">
+        {% for brand in brands %}
+        <li><img src="{% static 'img/brands/'|add:brand.file %}" width="{{ brand.width }}" height="{{ brand.height }}" alt="{{ brand.name }}"></li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section class="steps" id="cara-kerja">
+    <h2 class="steps__title">Empat langkah dari<br>lemari ke tangan<br>teman sekampus</h2>
+    <p class="steps__text">Tanpa payment gateway, tanpa pengiriman.<br>Semua transaksi selesai di dalam kampus.</p>
+    <ol class="step-grid">
+        {% for step in steps %}
+        <li class="step">
+            <span class="step__number">0{{ forloop.counter }}</span>
+            <h3 class="step__title">{{ step.title }}</h3>
+            <p class="step__body">{{ step.body|linebreaksbr }}</p>
+        </li>
+        {% endfor %}
+    </ol>
+</section>
+
+<section class="faq" id="faq">
+    <h2 class="section-title">Pertanyaan yang sering muncul</h2>
+    <p class="faq__text">Masih ragu? Ini jawaban singkat soal keamanan dan cara bertransaksi.</p>
+    <div class="faq__list">
+        {% for faq in faqs %}
+        <details class="faq__item" {% if forloop.first %}open{% endif %}>
+            <summary>{{ faq.question }}<span class="faq__toggle" aria-hidden="true"></span></summary>
+            <p>{{ faq.answer }}</p>
+        </details>
+        {% endfor %}
+    </div>
+</section>
 {% endblock content %}
