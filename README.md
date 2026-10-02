@@ -3,6 +3,10 @@ Reware.ui adalah marketplace pakaian preloved yang aksesnya terbatas pada mahasi
 
 # Reware.ui Marketplace Preloved Mahasiswa UI
 
+## Checkpoint 2 Figma Link:
+https://www.figma.com/team_invite/redeem/25EXG65UrUL0XNTQguXPb5?t=AncRCZS0A4oMweSB-21
+On folder Reware ui -> file 'Checkpoint 2'
+
 ## Deskripsi Aplikasi
 
 Reware.ui adalah marketplace pakaian preloved yang aksesnya terbatas pada mahasiswa Universitas Indonesia terverifikasi. Aplikasi ini memindahkan transaksi thrift antarmahasiswa dari grup percakapan ke dalam satu katalog terstruktur, dengan lima komponen utama:
