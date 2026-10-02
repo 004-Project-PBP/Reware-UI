@@ -30,10 +30,10 @@ SECRET_KEY = 'django-insecure-fs)w6)9s9cgg041mc1yh6zu-)bh3k0fff&tugjm(p++)hw=vah
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "maglio-razzy-reware.pws.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "maglio-razzy-reware.pws.cs.ui.ac.id", "zhillan-baniaksa-rewareui.pws.cs.ui.ac.id"]
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
-CSRF_TRUSTED_ORIGINS = ["https://maglio-razzy-reware.pws.cs.ui.ac.id"]
+CSRF_TRUSTED_ORIGINS = ["https://maglio-razzy-reware.pws.cs.ui.ac.id", "https://zhillan-baniaksa-rewareui.pws.cs.ui.ac.id"]
 
 
 # Application definition
