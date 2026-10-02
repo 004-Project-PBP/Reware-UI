@@ -100,11 +100,21 @@
 
 <section class="brands">
     <h2 class="section-title">Pakaian yang tetap dipakai, bukan dibuang</h2>
-    <ul class="brand-row">
-        {% for brand in brands %}
-        <li><img src="{% static 'img/brands/'|add:brand.file %}" width="{{ brand.width }}" height="{{ brand.height }}" alt="{{ brand.name }}"></li>
-        {% endfor %}
-    </ul>
+    <div class="brand-marquee">
+        <div class="brand-marquee__track">
+            {# Two identical rows: the track slides by one row's width, then loops #}
+            <ul class="brand-row">
+                {% for brand in brands %}
+                <li><img src="{% static 'img/brands/'|add:brand.file %}" width="{{ brand.width }}" height="{{ brand.height }}" alt="{{ brand.name }}"></li>
+                {% endfor %}
+            </ul>
+            <ul class="brand-row" aria-hidden="true">
+                {% for brand in brands %}
+                <li><img src="{% static 'img/brands/'|add:brand.file %}" width="{{ brand.width }}" height="{{ brand.height }}" alt=""></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </section>
 
 <section class="steps" id="cara-kerja">

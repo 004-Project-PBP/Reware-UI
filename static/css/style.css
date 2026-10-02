@@ -659,17 +659,51 @@ img {
     pointer-events: none;
 }
 
+.brand-marquee {
+    margin-top: 47px;
+    overflow: hidden;
+}
+
+.brand-marquee__track {
+    display: flex;
+    width: max-content;
+    animation: brand-scroll 30s linear infinite;
+}
+
+.brand-marquee:hover .brand-marquee__track {
+    animation-play-state: paused;
+}
+
+/* padding-right matches the gap so the seam between the two rows is invisible */
 .brand-row {
     display: flex;
+    flex: none;
     align-items: center;
-    justify-content: center;
     gap: 67px;
     height: 122px;
-    margin-top: 47px;
+    padding-right: 67px;
 }
 
 .brand-row li {
     flex: none;
+}
+
+@keyframes brand-scroll {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .brand-marquee__track {
+        justify-content: center;
+        width: auto;
+        animation: none;
+    }
+
+    .brand-row[aria-hidden="true"] {
+        display: none;
+    }
 }
 
 .brand-row img {
