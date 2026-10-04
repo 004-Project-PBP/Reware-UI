@@ -345,6 +345,13 @@ html {
     background: var(--neutral-300);
 }
 
+.badge__avatars img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .badge__avatars span + span {
     margin-left: -8px;
 }

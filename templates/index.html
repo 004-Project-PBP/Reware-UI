@@ -4,7 +4,12 @@
 {% block content %}
 <section class="hero">
     <p class="badge">
-        <span class="badge__avatars" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="badge__avatars" aria-hidden="true">
+            <span></span>
+            {% for avatar in avatars %}
+            <span><img src="{% static 'img/peopleicon/'|add:avatar.file %}" width="28" height="28" alt=""></span>
+            {% endfor %}
+        </span>
         Khusus mahasiswa UI · terverifikasi @ui.ac.id
     </p>
     <h1 class="hero__title">Pasar Preloved<br>Kampus UI</h1>

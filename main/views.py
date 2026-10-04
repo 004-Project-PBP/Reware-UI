@@ -7,6 +7,12 @@ STATS = [
     {"value": "Rp0", "label": "Ongkir"},
 ]
 
+# file under static/img/peopleicon/, shown in the hero badge
+AVATARS = [
+    {"name": "Zhillan", "file": "zhillan-avatar.jpg"},
+    {"name": "Razzy", "file": "razzyicon.jpeg"},
+]
+
 CATEGORIES = [
     {"name": "Atasan", "count": 128, "active": True},
     {"name": "Bawahan", "count": 94},
@@ -74,6 +80,7 @@ FAQS = [
 def show_main(request):
     context = {
         "stats": STATS,
+        "avatars": AVATARS,
         "categories": CATEGORIES,
         "items": ITEMS,
         "brands": BRANDS,
