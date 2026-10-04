@@ -1318,14 +1318,28 @@ html {
     }
 
     .footer {
-        padding: 40px 24px 28px;
+        gap: 28px;
+        padding: 32px 24px 24px;
+        border-radius: 24px;
+    }
+
+    .footer__text,
+    .footer__guides {
+        display: none;
     }
 
     .signup {
-        flex-wrap: wrap;
+        margin-top: 20px;
     }
 
     .signup__input {
-        width: 100%;
+        flex: 1;
+        width: auto;
+        min-width: 0;
+    }
+
+    .signup__button {
+        width: auto;
+        padding: 0 18px;
     }
 }
