@@ -10,23 +10,29 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="{% static 'js/main.js' %}" defer></script>
     {% block meta %}{% endblock meta %}
 </head>
 <body>
     <header class="site-header">
-        <nav class="nav">
+        <nav class="nav" aria-label="Navigasi utama">
             <a class="nav__brand" href="{% url 'main:show_main' %}">
                 <img src="{% static 'img/logo.svg' %}" width="33" height="34" alt="">
                 <span>RewareUI</span>
             </a>
-            <div class="nav__links">
-                <a href="#">Katalog</a>
-                <a href="{% url 'main:show_main' %}#cara-kerja">Cara kerja</a>
-                <a href="{% url 'main:show_main' %}#faq">FAQ</a>
-            </div>
-            <div class="nav__actions">
-                <a class="btn btn--nav-muted" href="#">Masuk</a>
-                <a class="btn btn--nav-light" href="#">Daftar sekarang</a>
+            <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Buka menu">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="nav__menu" id="nav-menu">
+                <div class="nav__links">
+                    <a href="{% url 'main:show_main' %}#katalog">Katalog</a>
+                    <a href="{% url 'main:show_main' %}#cara-kerja">Cara kerja</a>
+                    <a href="{% url 'main:show_main' %}#faq">FAQ</a>
+                </div>
+                <div class="nav__actions">
+                    <a class="btn btn--nav-muted" href="#">Masuk</a>
+                    <a class="btn btn--nav-light" href="#">Daftar sekarang</a>
+                </div>
             </div>
         </nav>
     </header>
