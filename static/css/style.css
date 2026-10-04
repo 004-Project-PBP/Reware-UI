@@ -1396,6 +1396,40 @@ html {
         line-height: 24px;
     }
 
+    .hero__text br {
+        display: none;
+    }
+
+    /* Stats: one row of equal cards instead of fixed desktop widths */
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        width: 100%;
+        max-width: 420px;
+        margin-top: 28px;
+    }
+
+    .stat,
+    .stat:nth-child(n) {
+        width: auto;
+        height: auto;
+        padding: 14px 10px;
+        border-radius: 18px;
+        text-align: center;
+    }
+
+    .stat__value {
+        font-size: 22px;
+        line-height: 28px;
+    }
+
+    .stat__label {
+        font-size: 11px;
+        line-height: 15px;
+        white-space: normal;
+    }
+
     .section-title,
     .steps__title,
     .footer__title {
