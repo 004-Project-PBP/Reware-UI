@@ -15,11 +15,16 @@ CATEGORIES = [
     {"name": "Aksesori", "count": 33},
 ]
 
+# image: optional, file under static/img/
 ITEMS = [
-    {"name": "Kemeja linen oversize", "brand": "Uniqlo", "price": "Rp85.000", "discount": 70},
-    {"name": "Kaos boxy heavyweight", "brand": "H&M", "price": "Rp45.000", "discount": 62},
-    {"name": "Blouse satin krem", "brand": "Zara", "price": "Rp120.000", "discount": 58},
-    {"name": "Polo rajut vintage", "brand": "Lacoste", "price": "Rp210.000", "discount": 65},
+    {"name": "Kemeja linen oversize", "brand": "Uniqlo", "price": "Rp85.000", "discount": 70,
+     "image": "KemejaLinenOversize.png"},
+    {"name": "Kaos boxy heavyweight", "brand": "H&M", "price": "Rp45.000", "discount": 62,
+     "image": "kaosboxyheavyweight.png"},
+    {"name": "Blouse satin krem", "brand": "Zara", "price": "Rp120.000", "discount": 58,
+     "image": "blousesatinkrem.jpg"},
+    {"name": "Polo rajut vintage", "brand": "Lacoste", "price": "Rp210.000", "discount": 65,
+     "image": "sweaterpolorajut.png"},
     {"name": "Item 5", "brand": "Price 5", "price": "Rp210.000", "discount": 67},
     {"name": "Item 6", "brand": "Item 6", "price": "Rp210.000", "discount": 76},
 ]

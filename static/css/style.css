@@ -579,8 +579,21 @@ html {
     flex: none;
     width: 48px;
     height: 48px;
+    overflow: hidden;
     border-radius: 10px;
     background: var(--cream);
+}
+
+.item__thumb img,
+.photo-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* the detail photo shows the whole garment, not a crop */
+.photo-slot img {
+    object-fit: contain;
 }
 
 .item__text {
@@ -632,6 +645,14 @@ html {
     border: 1px dashed #000;
     border-radius: inherit;
     opacity: 0.35;
+}
+
+.photo-slot--filled {
+    overflow: hidden;
+}
+
+.photo-slot--filled::before {
+    content: none;
 }
 
 .detail__head {
