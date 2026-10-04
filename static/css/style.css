@@ -1151,23 +1151,36 @@ html {
     translate: none;
 }
 
+/* Below the design width the catalog preview scales down as one piece, like a screenshot */
+@media (max-width: 1200px) {
+    .showcase {
+        container-type: inline-size;
+        height: auto;
+        min-height: 0;
+        aspect-ratio: 1200 / 699;
+    }
+
+    .showcase__inner {
+        left: 50%;
+        width: 1200px;
+        height: 699px;
+        margin: 0;
+        translate: -50% 0;
+        /* tan(atan2()) turns the length ratio into a plain number */
+        scale: tan(atan2(100cqw, 1200px));
+        transform-origin: top center;
+    }
+
+    .brands {
+        margin-top: calc(-112 / 1200 * 100vw);
+    }
+}
+
 /* Narrower screens: the design is desktop-only, these keep it usable */
 @media (max-width: 1100px) {
     .nav__links {
         gap: 24px;
         font-size: 16px;
-    }
-
-    .float-card {
-        display: none;
-    }
-
-    .mockup__body {
-        grid-template-columns: 160px 1fr;
-    }
-
-    .mockup__detail {
-        display: none;
     }
 
     .step-grid {
@@ -1274,17 +1287,8 @@ html {
         line-height: 34px;
     }
 
-    .mockup__body {
-        grid-template-columns: 1fr;
-    }
-
-    .mockup__sidebar {
-        display: none;
-    }
-
-    .mockup__url {
-        left: 88px;
-        right: 16px;
+    .showcase {
+        margin-top: 64px;
     }
 
     .brands {
