@@ -1050,7 +1050,7 @@ html {
     grid-template-columns: 537px 1fr;
     max-width: 1249px;
     margin: 0 auto;
-    padding: 60px 36px 32px 60px;
+    padding: 60px 36px 60px 60px;
     border: 2px solid var(--ink-soft);
     border-radius: 32px;
     background: var(--ink);
@@ -1160,28 +1160,97 @@ html {
     transform: translateX(4px);
 }
 
-.footer__bottom {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 12px 32px;
-    grid-column: 1 / -1;
-    margin-top: 64px;
-    padding-top: 20px;
-    border-top: 1px solid var(--ink-soft);
-    color: var(--neutral-300);
+/* Site footer: full-width band; content lines up with the sign-up card above */
+.site-footer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px 64px;
+    padding: 48px max(76px, calc((100% - 1249px) / 2 + 60px)) 32px;
+    background: var(--paper);
+    color: var(--ink);
+}
+
+.site-footer__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 28px;
+}
+
+/* logo.svg is drawn white for the dark navbar */
+.site-footer__brand img {
+    filter: brightness(0);
+}
+
+.site-footer__about p {
+    margin-top: 12px;
+    color: var(--ink-soft);
+}
+
+.site-footer__columns {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(120px, auto));
+    gap: 24px 64px;
+}
+
+.site-footer__heading {
     font-size: 16px;
+    font-weight: 600;
     line-height: 24px;
 }
 
-.footer__legal {
+.site-footer__columns ul {
     display: flex;
-    flex-wrap: wrap;
-    gap: 32px;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
 }
 
-.footer__legal a:hover {
-    color: #fff;
+.site-footer a {
+    transition: color 0.2s ease;
+}
+
+.site-footer__columns a {
+    color: var(--ink-soft);
+}
+
+.site-footer__columns a:hover,
+.site-footer__social a:hover {
+    color: var(--ink);
+}
+
+.site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    grid-column: 1 / -1;
+    padding-top: 20px;
+    border-top: 1px solid var(--neutral-300);
+    color: var(--ink-soft);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.site-footer__social {
+    display: flex;
+    gap: 8px;
+}
+
+.site-footer__social a {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--ink-soft);
+}
+
+.site-footer__social a:hover {
+    background: var(--neutral-200);
 }
 
 /* Scroll reveal, driven by static/js/main.js (the step cards' hover lift shares the transition) */
@@ -1238,8 +1307,9 @@ html {
         gap: 48px;
     }
 
-    .footer__bottom {
-        margin-top: 0;
+    .site-footer {
+        grid-template-columns: 1fr;
+        gap: 32px;
     }
 }
 
@@ -1369,5 +1439,19 @@ html {
     .signup__button {
         width: auto;
         padding: 0 18px;
+    }
+
+    .site-footer {
+        padding: 32px 24px 24px;
+    }
+
+    .site-footer__columns {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 28px 16px;
+    }
+
+    .site-footer__bottom {
+        flex-direction: column-reverse;
+        align-items: flex-start;
     }
 }
