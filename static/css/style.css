@@ -83,6 +83,7 @@ html {
     align-items: center;
     justify-content: center;
     white-space: nowrap;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn--nav-muted,
@@ -968,6 +969,7 @@ html {
     font-size: 20px;
     font-weight: 400;
     line-height: 20px;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.3s ease;
 }
 
 .faq__toggle::before {
@@ -977,6 +979,7 @@ html {
 .faq__item[open] .faq__toggle {
     background: var(--ink);
     color: #fff;
+    transform: rotate(180deg);
 }
 
 .faq__item[open] .faq__toggle::before {
@@ -1101,6 +1104,14 @@ html {
 
 .guide-list a:hover {
     border-bottom-color: #fff;
+}
+
+.guide-list a span {
+    transition: transform 0.2s ease;
+}
+
+.guide-list a:hover span {
+    transform: translateX(4px);
 }
 
 .footer__bottom {
