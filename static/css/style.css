@@ -392,6 +392,23 @@ html {
     margin-top: 25px;
 }
 
+/* Entrance motion: hero content, then the catalog preview */
+@keyframes rise-in {
+    from {
+        opacity: 0;
+        translate: 0 16px;
+    }
+}
+
+.hero > * {
+    animation: rise-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.hero > :nth-child(2) { animation-delay: 0.08s; }
+.hero > :nth-child(3) { animation-delay: 0.16s; }
+.hero > :nth-child(4) { animation-delay: 0.24s; }
+.hero > :nth-child(5) { animation-delay: 0.32s; }
+
 /* Catalog preview */
 .showcase {
     height: 699px;
@@ -418,6 +435,7 @@ html {
     border-radius: 20px 20px 0 0;
     background: #fff;
     transform: rotate(-1.12deg);
+    animation: rise-in 0.9s 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .mockup__bar {
@@ -670,6 +688,14 @@ html {
     border-radius: 24px;
     background: #fff;
     box-shadow: 0 12px 16px rgba(0, 0, 0, 0.25);
+    animation: bob 6s ease-in-out infinite;
+}
+
+/* translate composes with each card's rotate transform */
+@keyframes bob {
+    50% {
+        translate: 0 -10px;
+    }
 }
 
 .float-card--maps {
@@ -682,6 +708,7 @@ html {
     top: 384px;
     left: calc(50% - 570px);
     transform: rotate(-15deg);
+    animation-delay: -3s;
 }
 
 .float-card__slot {
@@ -795,6 +822,23 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .hero > *,
+    .mockup,
+    .float-card,
+    .faq__item[open] p {
+        animation: none;
+    }
+
+    .js .reveal {
+        opacity: 1;
+        translate: none;
+        transition: none;
+    }
+
     .brand-marquee__track {
         justify-content: center;
         width: auto;
@@ -842,6 +886,15 @@ html {
     border-radius: 24px;
     background: #fff;
 }
+
+.step:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.step:nth-child(2) { --delay: 0.1s; }
+.step:nth-child(3) { --delay: 0.2s; }
+.step:nth-child(4) { --delay: 0.3s; }
 
 .step__number {
     display: block;
@@ -935,6 +988,10 @@ html {
     margin: -8px 16px 0;
     padding-bottom: 24px;
     color: var(--ink-soft);
+}
+
+.faq__item[open] p {
+    animation: rise-in 0.35s ease both;
 }
 
 /* Footer */
@@ -1068,6 +1125,19 @@ html {
 
 .footer__legal a:hover {
     color: #fff;
+}
+
+/* Scroll reveal, driven by static/js/main.js (the step cards' hover lift shares the transition) */
+.js .reveal {
+    opacity: 0;
+    translate: 0 24px;
+    transition: opacity 0.6s ease var(--delay, 0s), translate 0.6s ease var(--delay, 0s),
+        transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.js .reveal.is-visible {
+    opacity: 1;
+    translate: none;
 }
 
 /* Narrower screens: the design is desktop-only, these keep it usable */

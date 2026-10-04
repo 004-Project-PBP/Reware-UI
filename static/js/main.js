@@ -1,3 +1,6 @@
+// Lets the CSS hide .reveal elements only when this script can show them again
+document.documentElement.classList.add('js');
+
 // Navbar: mobile menu, shadow once scrolled, link of the section in view
 const header = document.querySelector('.site-header');
 const nav = header.querySelector('.nav');
@@ -42,3 +45,14 @@ navLinks.forEach((link) => {
     const section = document.getElementById(link.hash.slice(1));
     if (section) sectionObserver.observe(section);
 });
+
+// Fade sections in the first time they scroll into view
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+    });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach((el) => revealObserver.observe(el));

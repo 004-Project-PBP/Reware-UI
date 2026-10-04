@@ -99,7 +99,7 @@
 </section>
 
 <section class="brands">
-    <h2 class="section-title">Pakaian yang tetap dipakai, bukan dibuang</h2>
+    <h2 class="section-title reveal">Pakaian yang tetap dipakai, bukan dibuang</h2>
     <div class="brand-marquee">
         <div class="brand-marquee__track">
             {# Two identical rows: the track slides by one row's width, then loops #}
@@ -118,11 +118,11 @@
 </section>
 
 <section class="steps" id="cara-kerja">
-    <h2 class="steps__title">Empat langkah dari<br>lemari ke tangan<br>teman sekampus</h2>
-    <p class="steps__text">Tanpa payment gateway, tanpa pengiriman.<br>Semua transaksi selesai di dalam kampus.</p>
+    <h2 class="steps__title reveal">Empat langkah dari<br>lemari ke tangan<br>teman sekampus</h2>
+    <p class="steps__text reveal">Tanpa payment gateway, tanpa pengiriman.<br>Semua transaksi selesai di dalam kampus.</p>
     <ol class="step-grid">
         {% for step in steps %}
-        <li class="step">
+        <li class="step reveal">
             <span class="step__number">0{{ forloop.counter }}</span>
             <h3 class="step__title">{{ step.title }}</h3>
             <p class="step__body">{{ step.body|linebreaksbr }}</p>
@@ -132,9 +132,9 @@
 </section>
 
 <section class="faq" id="faq">
-    <h2 class="section-title">Pertanyaan yang sering muncul</h2>
-    <p class="faq__text">Masih ragu? Ini jawaban singkat soal keamanan dan cara bertransaksi.</p>
-    <div class="faq__list">
+    <h2 class="section-title reveal">Pertanyaan yang sering muncul</h2>
+    <p class="faq__text reveal">Masih ragu? Ini jawaban singkat soal keamanan dan cara bertransaksi.</p>
+    <div class="faq__list reveal">
         {% for faq in faqs %}
         <details class="faq__item" {% if forloop.first %}open{% endif %}>
             <summary>{{ faq.question }}<span class="faq__toggle" aria-hidden="true"></span></summary>
