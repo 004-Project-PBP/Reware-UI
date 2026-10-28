@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .lf-wrap { max-width: 1100px; margin: 0 auto; padding: 60px 24px 72px; color: #12151A; }
+  .lf-crumb { font-size: 12.5px; color: #8A8D96; margin-bottom: 6px; }
+  .lf-wrap h1 { margin: 0 0 24px; font-size: 32px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; }
+  .lf-grid { display: grid; grid-template-columns: 340px 1fr; gap: 28px; align-items: start; }
+  @media (max-width: 800px) { .lf-grid { grid-template-columns: 1fr; } }
+  .lf-card { background: #fff; border: 1px solid #ECEDF0; border-radius: 16px; box-shadow: 0 1px 2px rgba(16,18,22,.03), 0 10px 28px rgba(16,18,22,.05); padding: 24px; }
+  .lf-drop { position: relative; height: 260px; border: 1.5px dashed #D5D7DC; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #8A8D96; font-size: 13.5px; cursor: pointer; overflow: hidden; text-align: center; }
+  .lf-drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+  .lf-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .lf-hint { font-size: 12px; color: #A8ABB3; margin-top: 12px; }
+  .lf-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+  .lf-field > label, .lf-label { font-size: 12.5px; font-weight: 600; color: #51545C; }
+  .lf-field input[type=text], .lf-field input[type=number], .lf-field textarea {
+    padding: 11px 14px; border: 1px solid #E2E4E9; border-radius: 10px; font-size: 14px; font-family: inherit; background: #fff; width: 100%; box-sizing: border-box; }
+  .lf-field input:focus, .lf-field textarea:focus { outline: 2px solid #12151A22; border-color: #12151A; }
+  .lf-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .lf-row2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .lf-seg { display: flex; gap: 8px; flex-wrap: wrap; }
+  .lf-seg ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+  .lf-seg label { position: relative; cursor: pointer; }
+  .lf-seg input { position: absolute; opacity: 0; }
+  .lf-seg span { display: inline-block; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; background: #F5F5F7; color: #51545C; border: 1px solid #E2E4E9; }
+  .lf-seg input:checked + span { background: #12151A; color: #fff; border-color: #12151A; }
+  .lf-save { display: flex; justify-content: space-between; align-items: center; background: #ECFDF3; border: 1px solid #BBF0D1; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+  .lf-save small { display: block; color: #4B7A5F; font-size: 12.5px; }
+  .lf-save b { color: #14532D; font-size: 13.5px; }
+  .lf-pill { background: #16A34A; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 999px; }
+  .lf-pill.off { background: #A8ABB3; }
+  .lf-err { color: #B42318; font-size: 12.5px; margin: 0; padding: 0; list-style: none; }
+  .lf-actions { display: flex; gap: 12px; }
+  .lf-btn { background: #12151A; color: #fff; border: 0; border-radius: 10px; padding: 13px 26px; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; }
+  .lf-btn-ghost { background: #fff; color: #12151A; border: 1px solid #E2E4E9; }
+</style>
+
+<div class="lf-wrap">
+  <div class="lf-crumb">Lapak Saya / {{ title }}</div>
+  <h1>{{ title }}</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<ul class="lf-err">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+    <div class="lf-grid">
+
+      <!-- KIRI: FOTO -->
+      <div class="lf-card">
+        <div class="lf-drop" id="drop">
+          <img id="preview" alt="Preview foto">
+          <span id="drop-text">Foto utama — klik atau tarik &amp; lepas</span>
+          {{ form.photo }}
+        </div>
+        {% if form.photo.errors %}<ul class="lf-err">{% for e in form.photo.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        <p class="lf-hint">JPG/PNG. Foto jadi sampul listing.</p>
+      </div>
+
+      <!-- KANAN: FORM -->
+      <div class="lf-card">
+        <div class="lf-field">
+          <label for="{{ form.title.id_for_label }}">Judul Item</label>
+          {{ form.title }}
+          {% for e in form.title.errors %}<p class="lf-err">{{ e }}</p>{% endfor %}
+        </div>
+
+        <div class="lf-field">
+          <span class="lf-label">Ukuran</span>
+          <div class="lf-seg">
+            {% for radio in form.size %}<label>{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>{% endfor %}
+          </div>
+        </div>
+
+        <div class="lf-field">
+          <span class="lf-label">Tingkat Kondisi</span>
+          <div class="lf-seg">
+            {% for radio in form.condition %}<label>{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>{% endfor %}
+          </div>
+        </div>
+
+        <div class="lf-field">
+          <label for="{{ form.description.id_for_label }}">Deskripsi Kondisi</label>
+          {{ form.description }}
+        </div>
+
+        <div class="lf-row">
+          <div class="lf-field">
+            <label for="{{ form.price.id_for_label }}">Harga Jual</label>
+            {{ form.price }}
+            {% for e in form.price.errors %}<p class="lf-err">{{ e }}</p>{% endfor %}
+          </div>
+          <div class="lf-field">
+            <label for="{{ form.stock.id_for_label }}">Stok</label>
+            {{ form.stock }}
+          </div>
+          <div class="lf-field">
+            <label for="{{ form.cod_point.id_for_label }}">Titik COD</label>
+            {{ form.cod_point }}
+          </div>
+        </div>
+
+        <div class="lf-field">
+          <label for="{{ form.retail_price.id_for_label }}">{{ form.retail_price.label }}</label>
+          {{ form.retail_price }}
+        </div>
+
+        <div class="lf-save">
+          <div>
+            <small id="save-ref">Isi harga ritel &amp; harga jual</small>
+            <b>Dihitung otomatis dari harga jual yang kamu isi</b>
+          </div>
+          <span class="lf-pill off" id="save-pill">Hemat —</span>
+        </div>
+
+        <div class="lf-actions">
+          {% if is_create %}
+            <button class="lf-btn lf-btn-ghost" type="submit" name="action" value="draft">Simpan Draf</button>
+            <button class="lf-btn" type="submit" name="action" value="publish">Tayangkan Listing</button>
+          {% else %}
+            <button class="lf-btn" type="submit">Simpan Perubahan</button>
+            <a class="lf-btn lf-btn-ghost" href="{% url 'listings:my_listings' %}">Batal</a>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+<script>
+  const photoInput = document.getElementById("{{ form.photo.id_for_label }}");
+  const preview = document.getElementById("preview");
+  const dropText = document.getElementById("drop-text");
+  photoInput.addEventListener("change", () => {
+    const file = photoInput.files[0];
+    if (!file) return;
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+    dropText.style.display = "none";
+  });
+
+  const priceEl = document.getElementById("{{ form.price.id_for_label }}");
+  const retailEl = document.getElementById("{{ form.retail_price.id_for_label }}");
+  const pill = document.getElementById("save-pill");
+  const ref = document.getElementById("save-ref");
+
+  const digits = (s) => (s || "").replace(/\D/g, "");
+  const fmt = (s) => {
+    const d = digits(s);
+    return d ? parseInt(d, 10).toLocaleString("id-ID") : "";
+  };
+
+  function updateSavings() {
+    const price = parseInt(digits(priceEl.value) || "0", 10);
+    const retail = parseInt(digits(retailEl.value) || "0", 10);
+    if (price > 0 && retail > price) {
+      const pct = Math.round((retail - price) / retail * 100);
+      pill.textContent = "Hemat " + pct + "%";
+      pill.classList.remove("off");
+      ref.textContent = "Harga ritel acuan: Rp " + retail.toLocaleString("id-ID");
+    } else {
+      pill.textContent = "Hemat —";
+      pill.classList.add("off");
+      ref.textContent = "Isi harga ritel & harga jual";
+    }
+  }
+
+  function onType(e) {
+    e.target.value = fmt(e.target.value);
+    updateSavings();
+  }
+  priceEl.addEventListener("input", onType);
+  retailEl.addEventListener("input", onType);
+
+  // bersihin titik sebelum dikirim ke server
+  document.querySelector("form").addEventListener("submit", () => {
+    priceEl.value = digits(priceEl.value);
+    retailEl.value = digits(retailEl.value);
+  });
+
+  priceEl.value = fmt(priceEl.value);
+  retailEl.value = fmt(retailEl.value);
+  updateSavings();
+</script>
+{% endblock %}

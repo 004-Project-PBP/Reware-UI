@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'accounts',
+    'listings',
 ]
 
 MIDDLEWARE = [
@@ -154,3 +155,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Halaman login untuk @login_required
 LOGIN_URL = 'accounts:login'
+#modul 3
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
