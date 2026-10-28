@@ -3,9 +3,11 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+from django.http import Http404
 
 from .forms import ListingForm
 from .models import Listing
+
 
 
 @login_required
@@ -73,3 +75,10 @@ def listing_set_status(request, pk):
         listing.status = new_status
         listing.save(update_fields=["status"])
     return redirect("listings:my_listings")
+
+def listing_detail(request, pk):
+    listing = get_object_or_404(Listing, pk=pk)
+    # item yang diarsipkan hanya bisa dilihat pemiliknya
+    if listing.status == Listing.Status.ARCHIVED and listing.seller != request.user:
+        raise Http404
+    return render(request, "listings/listing_detail.html", {"listing": listing})

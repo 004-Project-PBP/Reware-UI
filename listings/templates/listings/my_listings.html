@@ -69,7 +69,7 @@
       {% for l in listings %}
         <tr>
           <td>
-            <div class="lp-title">{{ l.title }}</div>
+            <div class="lp-title"><a href="{% url 'listings:detail' l.pk %}" style="color:inherit;text-decoration:none">{{ l.title }}</a></div>
             <div class="lp-sub">{{ l.get_condition_display }} · {{ l.size }}</div>
           </td>
           <td>
