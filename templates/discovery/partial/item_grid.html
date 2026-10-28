@@ -1,0 +1,14 @@
+{% for item in items %}
+<article class="card">
+  <button class="card__wish {% if item.id in wishlist_ids %}is-active{% endif %}" data-item="{{ item.id }}"
+          data-url="{% url 'discovery:api_wishlist_toggle' %}" title="Wishlist">♥</button>
+  {% if item.image %}<img class="card__thumb" src="{{ item.image.url }}" alt="{{ item.name }}">
+  {% else %}<span class="card__thumb"></span>{% endif %}
+  <span class="pill pill--olive card__disc">Hemat {{ item.discount_percent }}%</span>
+  <h4 class="card__name">{{ item.name }}</h4>
+  <p class="card__meta">{{ item.brand.name }} · {{ item.category.name }} · {{ item.size }} · {{ item.get_condition_display }}</p>
+  <p class="card__price">{{ item.price_rp }} {% if item.retail_price %}<s>{{ item.retail_rp }}</s>{% endif %}</p>
+  <p class="card__cod">COD: {{ item.cod_location }}</p>
+  <button class="btn btn--nav-light card__contact" data-url="{% url 'discovery:api_seller_contact' item.id %}">Kontak seller</button>
+</article>
+{% empty %}<p class="catalog__empty">Tidak ada item yang cocok dengan filter.</p>{% endfor %}
