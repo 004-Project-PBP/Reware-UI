@@ -72,8 +72,17 @@
       {% for l in listings %}
         <tr>
           <td>
-            <div class="lp-title"><a href="{% url 'listings:detail' l.pk %}" style="color:inherit;text-decoration:none">{{ l.title }}</a></div>
-            <div class="lp-sub">{{ l.get_condition_display }} · {{ l.size }}</div>
+            <div class="lp-item">
+              {% if l.photo %}
+                <img class="lp-thumb" src="{{ l.photo.url }}" alt="{{ l.title }}">
+              {% else %}
+                <div class="lp-thumb lp-thumb-empty">Foto</div>
+              {% endif %}
+              <div>
+                <div class="lp-title"><a href="{% url 'listings:detail' l.pk %}" style="color:inherit;text-decoration:none">{{ l.title }}</a></div>
+                <div class="lp-sub">{{ l.get_condition_display }} · {{ l.size }}</div>
+              </div>
+            </div>
           </td>
           <td>
             <div>Rp {{ l.price|floatformat:"0g" }}</div>
