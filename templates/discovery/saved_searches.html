@@ -1,0 +1,17 @@
+{% extends "discovery/base.html" %}
+{% block content %}
+<div class="page">
+  <h2 class="page__title">Pencarian tersimpan</h2>
+  <ul class="page__list">
+    {% for ss in saved %}
+    <li class="page__row">
+      <div>
+        <a href="{% url 'discovery:catalog' %}?{{ ss.querystring }}"><strong>{{ ss.label }}</strong></a>
+        <div class="page__muted">{{ ss.keyword|default:"(tanpa kata kunci)" }} · diperbarui {{ ss.updated_at|date:"d M Y" }}</div>
+      </div>
+      <button class="btn btn--nav-muted" data-delete-url="{% url 'discovery:api_saved_search_delete' ss.id %}">Hapus</button>
+    </li>
+    {% empty %}<li class="page__muted">Belum ada pencarian tersimpan.</li>{% endfor %}
+  </ul>
+</div>
+{% endblock %}

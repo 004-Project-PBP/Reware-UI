@@ -1,0 +1,84 @@
+{% load static %}<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wishlist · Reware.ui</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="dshell dshell--wish">
+  <header class="dshell__topbar">
+    <span></span>
+    <nav class="dshell__nav">
+      <a href="{% url 'discovery:catalog' %}">Katalog</a>
+      <a href="{% url 'discovery:saved_searches' %}">Pencarian Tersimpan</a>
+      <a href="{% url 'discovery:history' %}">Riwayat</a>
+    </nav>
+  </header>
+
+  <section class="dshell__panel">
+    <div class="wish__hero">
+      <svg class="wish__star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8l3 6.9 7.4.6-5.6 4.9 1.7 7.3L12 17.6l-6.5 3.9 1.7-7.3L1.6 9.3l7.4-.6z"/></svg>
+      <h1 class="wish__title">My Wishlist</h1>
+    </div>
+
+    <div class="wish__headwrap">
+      <div class="wish__grid wish__head">
+        <span></span><span></span>
+        <b>Product name</b><b>Price</b><b>Status</b><span></span>
+      </div>
+    </div>
+
+    <div id="w-rows">
+      {% for e in entries %}
+      <div class="wish__grid wish__row">
+        <button class="wish__del" title="Hapus dari wishlist"
+                data-wish-delete="{% url 'discovery:api_wishlist_toggle' %}" data-item="{{ e.item.id }}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg>
+        </button>
+        <span>{% if e.item.image %}<img class="wish__thumb" src="{{ e.item.image.url }}" alt="{{ e.item.name }}">
+          {% else %}<span class="wish__thumb"></span>{% endif %}</span>
+        <div>
+          <div class="wish__name">{{ e.item.name }}</div>
+          <div class="wish__note"><span class="wish__note-text">{{ e.note }}</span>
+            <button data-note-url="{% url 'discovery:api_wishlist_note' e.id %}" title="Ubah catatan">✎</button>
+          </div>
+        </div>
+        <div>{% if e.item.retail_price %}<s class="wish__old">{{ e.item.retail_rp }}</s><mark class="wish__hl">{{ e.item.price_rp }}</mark>
+          {% else %}{{ e.item.price_rp }}{% endif %}</div>
+        <div>{% if e.is_sold %}<span class="pill pill--sold">Sold</span>{% else %}<span class="pill pill--green">In Stock</span>{% endif %}</div>
+        <div class="wish__right">
+          <div class="wish__added">Added on: {{ e.added_at|date:"F j, Y" }}</div>
+          <a class="btn btn--teal" href="{% url 'discovery:catalog' %}?q={{ e.item.name|urlencode }}">View item</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="wish__empty" id="w-empty" {% if entries %}hidden{% endif %}>Add Products Here</div>
+  </section>
+
+  <script>
+    const csrf = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || "";
+    const H = {"X-Requested-With": "XMLHttpRequest", "X-CSRFToken": csrf};
+    document.addEventListener("click", async e => {
+      const del = e.target.closest("[data-wish-delete]");
+      if (del) {
+        await fetch(del.dataset.wishDelete, {method: "POST", headers: H,
+          body: new URLSearchParams({item_id: del.dataset.item})});
+        del.closest(".wish__row").remove();
+        if (!document.querySelectorAll(".wish__row").length) document.getElementById("w-empty").hidden = false;
+        return;
+      }
+      const note = e.target.closest("[data-note-url]");
+      if (note) {
+        const row = note.closest(".wish__row");
+        const val = prompt("Catatan pribadi untuk item ini:", row.querySelector(".wish__note-text").textContent || "");
+        if (val === null) return;
+        await fetch(note.dataset.noteUrl, {method: "POST", headers: H, body: new URLSearchParams({note: val})});
+        row.querySelector(".wish__note-text").textContent = val;
+      }
+    });
+  </script>
+</body>
+</html>
