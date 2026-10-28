@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from .models import Listing
+from .forms import ListingForm
+
 
 User = get_user_model()
 
@@ -42,3 +44,27 @@ class ListingModelTests(TestCase):
         lower = make_listing(self.seller, price=50000, retail_price=40000)
         self.assertIsNone(same.savings_percent)
         self.assertIsNone(lower.savings_percent)
+    
+def form_data(**kwargs):
+    data = {
+        "title": "Item Baru", "description": "Deskripsi", "size": "M",
+        "condition": "good", "price": "50000", "retail_price": "100000",
+        "stock": "1", "cod_point": "Stasiun UI",
+    }
+    data.update(kwargs)
+    return data
+
+
+class ListingFormTests(TestCase):
+    def test_valid_form(self):
+        self.assertTrue(ListingForm(data=form_data()).is_valid())
+
+    def test_price_zero_is_invalid(self):
+        form = ListingForm(data=form_data(price="0"))
+        self.assertFalse(form.is_valid())
+        self.assertIn("price", form.errors)
+
+    def test_title_is_required(self):
+        form = ListingForm(data=form_data(title=""))
+        self.assertFalse(form.is_valid())
+        self.assertIn("title", form.errors)
