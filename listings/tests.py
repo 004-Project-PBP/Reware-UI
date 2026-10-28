@@ -121,3 +121,88 @@ class ListingViewTests(TestCase):
         resp = self.client.post(reverse("listings:create"), form_data(price="0"))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(Listing.objects.count(), 1)
+
+        # --- update ---
+    def test_update_by_owner(self):
+        self.client.login(username="seller", password="pass12345")
+        url = reverse("listings:update", args=[self.listing.pk])
+        resp = self.client.post(url, form_data(title="Judul Baru"))
+        self.assertRedirects(resp, reverse("listings:my_listings"))
+        self.listing.refresh_from_db()
+        self.assertEqual(self.listing.title, "Judul Baru")
+
+    def test_update_by_other_user_returns_404(self):
+        self.client.login(username="other", password="pass12345")
+        url = reverse("listings:update", args=[self.listing.pk])
+        resp = self.client.post(url, form_data(title="Dibajak"))
+        self.assertEqual(resp.status_code, 404)
+        self.listing.refresh_from_db()
+        self.assertEqual(self.listing.title, "Uniqlo Tee")
+
+        # --- Delete ---
+    def test_delete_by_owner(self):
+        self.client.login(username="seller", password="pass12345")
+        self.client.post(reverse("listings:delete", args=[self.listing.pk]))
+        self.assertFalse(Listing.objects.filter(pk=self.listing.pk).exists())
+
+    def test_delete_by_other_user_returns_404(self):
+        self.client.login(username="other", password="pass12345")
+        resp = self.client.post(reverse("listings:delete", args=[self.listing.pk]))
+        self.assertEqual(resp.status_code, 404)
+        self.assertTrue(Listing.objects.filter(pk=self.listing.pk).exists())
+
+    def test_delete_rejects_get(self):
+        self.client.login(username="seller", password="pass12345")
+        resp = self.client.get(reverse("listings:delete", args=[self.listing.pk]))
+        self.assertEqual(resp.status_code, 405)
+
+        # --- status ---
+    def test_set_status_valid(self):
+        self.client.login(username="seller", password="pass12345")
+        url = reverse("listings:set_status", args=[self.listing.pk])
+        self.client.post(url, {"status": "sold"})
+        self.listing.refresh_from_db()
+        self.assertEqual(self.listing.status, Listing.Status.SOLD)
+
+    def test_set_status_invalid_is_ignored(self):
+        self.client.login(username="seller", password="pass12345")
+        url = reverse("listings:set_status", args=[self.listing.pk])
+        self.client.post(url, {"status": "ngawur"})
+        self.listing.refresh_from_db()
+        self.assertEqual(self.listing.status, Listing.Status.AVAILABLE)
+
+    def test_set_status_by_other_user_returns_404(self):
+        self.client.login(username="other", password="pass12345")
+        url = reverse("listings:set_status", args=[self.listing.pk])
+        resp = self.client.post(url, {"status": "sold"})
+        self.assertEqual(resp.status_code, 404)
+
+        # --- detail ---
+    def test_detail_guest_hides_private_info(self):
+        resp = self.client.get(reverse("listings:detail", args=[self.listing.pk]))
+        self.assertContains(resp, "Uniqlo Tee")
+        self.assertContains(resp, "Masuk untuk mengajukan beli")
+        self.assertNotContains(resp, "Stasiun UI")
+        self.assertNotContains(resp, "Ajukan Beli</button>")
+
+    def test_detail_logged_in_buyer_sees_cod_and_buy_button(self):
+        self.client.login(username="other", password="pass12345")
+        resp = self.client.get(reverse("listings:detail", args=[self.listing.pk]))
+        self.assertContains(resp, "Stasiun UI")
+        self.assertContains(resp, "Ajukan Beli")
+
+    def test_detail_owner_sees_manage_link(self):
+        self.client.login(username="seller", password="pass12345")
+        resp = self.client.get(reverse("listings:detail", args=[self.listing.pk]))
+        self.assertContains(resp, "Kelola listing ini")
+
+    def test_detail_archived_hidden_from_others_but_visible_to_owner(self):
+        archived = make_listing(self.seller, status=Listing.Status.ARCHIVED)
+        url = reverse("listings:detail", args=[archived.pk])
+        self.assertEqual(self.client.get(url).status_code, 404)
+        self.client.login(username="seller", password="pass12345")
+        self.assertEqual(self.client.get(url).status_code, 200)
+
+    def test_detail_unknown_id_returns_404(self):
+        resp = self.client.get(reverse("listings:detail", args=[9999]))
+        self.assertEqual(resp.status_code, 404)
