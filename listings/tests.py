@@ -95,6 +95,11 @@ class ListingViewTests(TestCase):
         self.assertContains(resp, "Uniqlo Tee")
         self.assertNotContains(resp, "Item Arsip")
 
+    def test_my_listings_shows_placeholder_without_photo(self):
+        self.client.login(username="seller", password="pass12345")
+        resp = self.client.get(reverse("listings:my_listings"))
+        self.assertContains(resp, "lp-thumb-empty")
+
     # --- create ---
     def test_create_requires_login(self):
         resp = self.client.post(reverse("listings:create"), form_data())
