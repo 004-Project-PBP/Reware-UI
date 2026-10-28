@@ -1,0 +1,67 @@
+{% extends "discovery/base.html" %}
+
+{% block content %}
+<div class="page">
+  <h2 class="page__title">Statistik pencarian (Admin)</h2>
+  
+  <p class="page__muted" style="margin-bottom: 16px;">
+    Kata kunci yang paling sering dicari oleh pengguna. Kelola koleksi kurasi ("Pilihan Kampus") dan kata kunci yang diblokir melalui 
+    <a href="/admin/discovery/" style="text-decoration: underline; color: var(--ink);">Django Admin</a>.
+  </p>
+
+  <table class="page__table">
+    <thead>
+      <tr>
+        <th>Kata Kunci</th>
+        <th style="text-align: right;">Jumlah Pencarian</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in top %}
+      <tr>
+        <td>{{ row.keyword }}</td>
+        <td style="text-align: right; font-weight: 600;">{{ row.n }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="2" class="page__muted" style="padding: 24px 8px;">Belum ada data pencarian dari pengguna.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 40px;">
+    <!-- collections -->
+    <div>
+      <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Koleksi Kurasi Aktif</h3>
+      <ul class="page__list">
+        {% for c in collections %}
+        <li class="page__row" style="padding: 10px 0;">
+          <span>{{ c.title }}</span>
+          <span class="pill {% if c.active_on_homepage %}pill--green{% else %}pill--olive{% endif %}">
+            {% if c.active_on_homepage %}Aktif{% else %}Nonaktif{% endif %}
+          </span>
+        </li>
+        {% empty %}
+        <li class="page__muted">Belum ada koleksi kurasi.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- blocked keywords -->
+    <div>
+      <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Kata Kunci Diblokir</h3>
+      <ul class="page__list">
+        {% for b in blocked %}
+        <li class="page__row" style="padding: 10px 0;">
+          <span>{{ b.keyword }}</span>
+          <span class="pill pill--sold">Diblokir</span>
+        </li>
+        {% empty %}
+        <li class="page__muted">Tidak ada kata kunci yang diblokir.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

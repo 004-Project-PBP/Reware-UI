@@ -1,0 +1,28 @@
+{% extends "discovery/base.html" %}
+
+{% block content %}
+<div class="page">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+    <h2 class="page__title" style="margin-bottom: 0;">Riwayat pencarian</h2>
+    {% if entries %}
+      <button class="btn btn--nav-light" data-delete-url="{% url 'discovery:api_history_clear' %}">Bersihkan semua</button>
+    {% endif %}
+  </div>
+
+  <ul class="page__list">
+    {% for h in entries %}
+    <li class="page__row">
+      <div>
+        <a href="{% url 'discovery:catalog' %}?q={{ h.keyword|urlencode }}">
+          <strong>{{ h.keyword }}</strong>
+        </a>
+        <div class="page__muted">{{ h.searched_at|date:"d M Y, H:i" }}</div>
+      </div>
+      <button class="btn btn--nav-muted" data-delete-url="{% url 'discovery:api_history_delete' h.id %}">Hapus</button>
+    </li>
+    {% empty %}
+    <li class="page__muted" style="padding: 24px 0;">Riwayat pencarian masih kosong.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}
