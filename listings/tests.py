@@ -181,6 +181,27 @@ class ListingViewTests(TestCase):
         url = reverse("listings:set_status", args=[self.listing.pk])
         resp = self.client.post(url, {"status": "sold"})
         self.assertEqual(resp.status_code, 404)
+    
+    def test_set_status_ajax_returns_json(self):
+        self.client.login(username="seller", password="pass12345")
+        url = reverse("listings:set_status", args=[self.listing.pk])
+        resp = self.client.post(
+            url, {"status": "sold"}, headers={"X-Requested-With": "XMLHttpRequest"}
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data["ok"])
+        self.assertEqual(data["status"], "sold")
+        self.assertEqual(data["available"], 0)
+
+    def test_set_status_ajax_invalid_returns_400(self):
+        self.client.login(username="seller", password="pass12345")
+        url = reverse("listings:set_status", args=[self.listing.pk])
+        resp = self.client.post(
+            url, {"status": "ngawur"}, headers={"X-Requested-With": "XMLHttpRequest"}
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertFalse(resp.json()["ok"])
 
         # --- detail ---
     def test_detail_guest_hides_private_info(self):
