@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
-from django.http import Http404
+from django.http import Http404, JsonResponse
 
 from .forms import ListingForm
 from .models import Listing
@@ -71,9 +71,22 @@ def listing_delete(request, pk):
 def listing_set_status(request, pk):
     listing = get_object_or_404(Listing, pk=pk, seller=request.user)
     new_status = request.POST.get("status")
-    if new_status in Listing.Status.values:
+    valid = new_status in dict(Listing.Status.choices)
+    if valid:
         listing.status = new_status
         listing.save(update_fields=["status"])
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        if not valid:
+            return JsonResponse({"ok": False, "error": "Status tidak valid"}, status=400)
+        mine = Listing.objects.filter(seller=request.user)
+        return JsonResponse({
+            "ok": True,
+            "status": listing.status,
+            "label": listing.get_status_display(),
+            "total": mine.count(),
+            "available": mine.filter(status=Listing.Status.AVAILABLE).count(),
+        })
     return redirect("listings:my_listings")
 
 def listing_detail(request, pk):
