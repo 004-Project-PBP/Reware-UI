@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ulasan Saya · Reware.ui{% endblock title %}
+{% block meta %}<link rel="stylesheet" href="{% static 'css/transaksi.css' %}">{% endblock meta %}
+
+{% block content %}
+<div class="tx-wrapper">
+    <div class="tx-container">
+        <aside class="tx-sidebar">
+            <p class="tx-sidebar__user">{{ request.user.username }}</p>
+            <p style="font-size:13px; margin:0;">Badge Rating: <strong>⭐ {{ avg_rating }} / 5.0</strong></p>
+            <hr class="tx-sidebar__divider">
+            <ul class="tx-sidebar__nav">
+                <li><a href="{% url 'transaksi:riwayat_transaksi' %}">← Order History</a></li>
+                <li><a href="{% url 'transaksi:daftar_ulasan' %}" class="active">Ulasan</a></li>
+                <li><a href="{% url 'transaksi:dashboard_dampak' %}">Dampak Lingkungan</a></li>
+            </ul>
+        </aside>
+
+        <section class="tx-main">
+            <div class="tx-header">
+                <h1 class="tx-title">Ulasan Saya (⭐ {{ avg_rating }})</h1>
+            </div>
+
+            <h3 style="margin-top:20px;">Ulasan Diterima</h3>
+            {% for ul in ulasan_diterima %}
+                <div class="tx-card">
+                    <strong>⭐ {{ ul.rating }}/5</strong> oleh <strong>{{ ul.reviewer.username }}</strong> · <small>{{ ul.transaksi.listing.title }}</small>
+                    <p style="margin:8px 0 0 0;">{{ ul.komentar }}</p>
+                </div>
+            {% empty %}
+                <p style="color:#555;">Belum ada ulasan yang diterima.</p>
+            {% endfor %}
+
+            <h3 style="margin-top:28px;">Ulasan yang Saya Tulis</h3>
+            {% for ul in ulasan_diberikan %}
+                <div class="tx-card">
+                    <div class="tx-card__top">
+                        <div>
+                            <strong>⭐ {{ ul.rating }}/5</strong> untuk <strong>{{ ul.reviewee.username }}</strong> · <small>{{ ul.transaksi.listing.title }}</small>
+                            <p style="margin:8px 0 0 0;">{{ ul.komentar }}</p>
+                        </div>
+                        <div class="tx-card__actions">
+                            <a href="{% url 'transaksi:detail_transaksi' ul.transaksi.id %}" class="tx-btn tx-btn--outline">Edit</a>
+                            <form method="post" action="{% url 'transaksi:hapus_ulasan' ul.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="tx-btn tx-btn--reject">Hapus</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p style="color:#555;">Anda belum menulis ulasan.</p>
+            {% endfor %}
+        </section>
+    </div>
+</div>
+{% endblock content %}
