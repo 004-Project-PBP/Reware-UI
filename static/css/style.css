@@ -12,6 +12,8 @@
     --green: #3f7d55;
     --olive-bg: #f1f1e9;
     --olive: #7d763f;
+    --red-bg: #fbeaea;
+    --red: #a12d2d;
     --placeholder: #bbb;
     --surface: #fff;
     --slot-bg: rgba(127, 127, 127, 0.08);
@@ -65,7 +67,7 @@ html {
 
 /* Keeps anchored sections clear of the sticky navbar */
 [id] {
-    scroll-margin-top: 100px;
+    scroll-margin-top: 50px;
 }
 
 .visually-hidden {
@@ -106,6 +108,13 @@ html {
     color: var(--ink);
 }
 
+/* Keluar is a <button> in a logout form */
+button.btn {
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
 .btn--nav-muted:hover {
     background: var(--ink-raised);
 }
@@ -139,6 +148,41 @@ html {
     font-weight: 600;
 }
 
+/* Compact buttons for forms and tables; combine with --dark, --light or --danger */
+.btn--sm {
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.btn--light {
+    background: var(--neutral-200);
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.btn--danger {
+    background: var(--red);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Only real controls: the catalog mockup also uses .btn--dark on plain spans */
+a.btn--dark:hover,
+button.btn--dark:hover {
+    background: var(--ink-soft);
+}
+
+.btn--light:hover {
+    background: var(--neutral-300);
+}
+
+.btn--danger:hover {
+    background: #8a2424;
+}
+
 /* Pills */
 .pill {
     display: inline-flex;
@@ -168,6 +212,16 @@ html {
     color: var(--olive);
 }
 
+.pill--red {
+    background: var(--red-bg);
+    color: var(--red);
+}
+
+.pill--muted {
+    background: var(--neutral-200);
+    color: var(--ink-soft);
+}
+
 .section-title {
     font-size: 42px;
     font-weight: 600;
@@ -178,9 +232,9 @@ html {
 /* Header: sticks 16px below the top once the 39px offset scrolls away */
 .site-header {
     position: sticky;
-    top: -23px;
+    top: -16px;
     z-index: 10;
-    padding: 39px 16px 0;
+    padding: 26px 16px 0;
 }
 
 .nav {
@@ -1251,6 +1305,368 @@ html {
 
 .site-footer__social a:hover {
     background: var(--neutral-200);
+}
+
+/* Messages: Django messages and form-wide errors */
+.message {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--neutral-200);
+    color: var(--ink);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.message a {
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.message--success {
+    background: var(--green-bg);
+    color: var(--green);
+}
+
+.message--error {
+    background: var(--red-bg);
+    color: var(--red);
+}
+
+.flash {
+    max-width: 1012px;
+    margin: 24px auto 0;
+    padding: 0 16px;
+}
+
+/* Form fields, rendered by templates/partials/field.html */
+.field + .field {
+    margin-top: 10px;
+}
+
+.field__label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 15px;
+    line-height: 22px;
+}
+
+.field__control {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid var(--neutral-300);
+    border-radius: 6px;
+    background: var(--surface);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field__control:focus-within {
+    border-color: var(--line);
+    box-shadow: 0 0 0 3px var(--neutral-200);
+}
+
+.field__control--error {
+    border-color: var(--red);
+}
+
+.field__control input,
+.field__control select {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+}
+
+.field__control input::placeholder {
+    color: var(--placeholder);
+}
+
+.field__help,
+.field__error {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.field__help {
+    color: var(--ink-soft);
+}
+
+.field__help ul {
+    padding-left: 16px;
+    list-style: disc;
+}
+
+.field__error {
+    color: var(--red);
+}
+
+.field--check {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    align-self: end;
+    min-height: 32px;
+}
+
+.field--check input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--ink);
+}
+
+/* Account pages: profile, settings and admin user management */
+.page {
+    max-width: 1012px;
+    margin: 40px auto 80px;
+    padding: 0 16px;
+}
+
+.page__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.page__title {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 40px;
+}
+
+.page__subtitle,
+.muted {
+    color: var(--ink-soft);
+}
+
+.page__actions,
+.form-actions,
+.pill-row,
+.table__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.pill-row {
+    margin-top: 8px;
+}
+
+.form-actions {
+    margin-top: 20px;
+}
+
+.profile-head {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--cream);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.panel {
+    padding: 24px;
+    border: 1px solid var(--neutral-200);
+    border-radius: 16px;
+    background: var(--surface);
+}
+
+.panel + .panel,
+.panel-grid + .panel,
+.message + .panel,
+.message + .panel-grid,
+.toolbar + .panel {
+    margin-top: 16px;
+}
+
+.panel--narrow {
+    max-width: 480px;
+}
+
+.panel__title {
+    margin-bottom: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 26px;
+}
+
+.panel__title--spaced {
+    margin-top: 32px;
+}
+
+.panel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.data-list {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 10px 24px;
+    margin: 0;
+}
+
+.data-list dt {
+    color: var(--ink-soft);
+}
+
+.data-list dd {
+    margin: 0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 20px;
+}
+
+.form-grid .field + .field {
+    margin-top: 0;
+}
+
+.inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.inline-form .field__control {
+    flex: 1;
+    min-width: 160px;
+    height: 36px;
+}
+
+.toolbar {
+    margin-top: 0;
+}
+
+.chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip-list .chip {
+    gap: 6px;
+    padding-right: 6px;
+    background: var(--cream);
+}
+
+.chip__remove {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--ink-soft);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.chip__remove:hover {
+    background: var(--neutral-300);
+    color: var(--ink);
+}
+
+.item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+}
+
+.item-grid .item {
+    width: auto;
+}
+
+.table-wrap {
+    padding: 0;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--neutral-200);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.table th {
+    color: var(--ink-soft);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table__actions {
+    justify-content: flex-end;
+}
+
+.table__empty {
+    color: var(--ink-soft);
+    text-align: center;
+}
+
+@media (max-width: 760px) {
+    .page__title {
+        font-size: 26px;
+        line-height: 34px;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    .panel-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .data-list {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
+
+    .data-list dd + dt {
+        margin-top: 10px;
+    }
 }
 
 /* Scroll reveal, driven by static/js/main.js (the step cards' hover lift shares the transition) */
