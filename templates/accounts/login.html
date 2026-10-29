@@ -1,0 +1,42 @@
+{% extends 'accounts/auth_base.html' %}
+{% load static %}
+
+{% block title %}Masuk · Reware.ui{% endblock title %}
+
+{% block switch %}
+<p class="auth__switch">belum punya akun? <a href="{% url 'accounts:register' %}">Sign Up</a></p>
+{% endblock switch %}
+
+{% block content %}
+<form class="auth-form" method="post">
+    {% csrf_token %}
+    <div class="auth-form__head">
+        <h1 class="auth-form__title">Enter Your Credentials</h1>
+    </div>
+
+    {% include "partials/messages.html" %}
+
+    <div class="field">
+        <label class="field__label" for="login-email">Email UI Address*</label>
+        <div class="field__control">
+            <input id="login-email" type="email" name="email" value="{{ values.email }}" placeholder="ex. john.pbp67@ui.ac.id"
+                   pattern=".+@ui\.ac\.id" autocomplete="email" required>
+        </div>
+    </div>
+    <div class="field">
+        <label class="field__label" for="login-password">Password*</label>
+        <div class="field__control">
+            <input id="login-password" type="password" name="password" placeholder="ex. nevertellanyoneyourpassword"
+                   autocomplete="current-password" required>
+        </div>
+    </div>
+
+    <button class="auth-form__submit" type="submit">Login</button>
+
+    <p class="auth__or">or</p>
+    <a class="sso" href="{% url 'accounts:sso_login' %}">
+        <img class="sso__emblem" src="{% static 'img/sso-ui.png' %}" width="34" height="37" alt="">
+        login dengan SSO UI
+    </a>
+</form>
+{% endblock content %}
