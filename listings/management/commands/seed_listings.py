@@ -51,9 +51,21 @@ STATUS_POOL = ["available"] * 7 + ["booked"] * 1 + ["sold"] * 1 + ["archived"] *
 class Command(BaseCommand):
     help = "Isi database dengan data contoh listing (seed/demo)."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--clear",
+            action="store_true",
+            help="Hapus listing milik seller seed sebelum mengisi ulang.",
+        )
+
     def handle(self, *args, **options):
         rng = random.Random(42)  # hasil sama setiap kali dijalankan
         conditions = [c[0] for c in Listing._meta.get_field("condition").choices]
+        if options["clear"]:
+            deleted, _ = Listing.objects.filter(
+                seller__username__in=SEED_SELLERS
+            ).delete()
+            self.stdout.write(f"{deleted} listing seed dihapus.")
 
         sellers = []
         for username in SEED_SELLERS:
