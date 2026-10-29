@@ -1,0 +1,4 @@
+{# Errors that belong to the whole form, not one field. Pass form=... when the variable has another name #}
+{% for error in form.non_field_errors %}
+<p class="message message--error" role="alert">{{ error }}</p>
+{% endfor %}
