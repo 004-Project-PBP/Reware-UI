@@ -1,0 +1,36 @@
+{% extends 'accounts/layout.html' %}
+
+{% block title %}Edit akun · Reware.ui{% endblock title %}
+
+{% block page %}
+<header class="page__head">
+    <div>
+        <h1 class="page__title">Edit akun</h1>
+        <p class="page__subtitle">{{ edited_user.email|default:edited_user.username }}</p>
+    </div>
+</header>
+
+<form class="panel" method="post">
+    {% csrf_token %}
+    {% include "partials/form_errors.html" with form=user_form %}
+
+    <h2 class="panel__title">Akun</h2>
+    <div class="form-grid">
+        {% for field in user_form %}
+        {% include "partials/field.html" %}
+        {% endfor %}
+    </div>
+
+    <h2 class="panel__title panel__title--spaced">Profil</h2>
+    <div class="form-grid">
+        {% for field in profile_form %}
+        {% include "partials/field.html" %}
+        {% endfor %}
+    </div>
+
+    <div class="form-actions">
+        <button class="btn btn--sm btn--dark" type="submit">Simpan</button>
+        <a class="btn btn--sm btn--light" href="{% url 'accounts:user_list' %}">Batal</a>
+    </div>
+</form>
+{% endblock page %}
