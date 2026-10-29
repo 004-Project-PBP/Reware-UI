@@ -9,4 +9,5 @@ urlpatterns = [
     path("", include("accounts.urls")),
     path("lapak/", include("listings.urls")),
     path("katalog/", include("discovery.urls")),
+    path("transaksi/", include("transaksi.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

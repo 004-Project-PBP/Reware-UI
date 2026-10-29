@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detail Pesanan COD · Reware.ui{% endblock title %}
+
+{% block meta %}
+<link rel="stylesheet" href="{% static 'css/transaksi.css' %}">
+{% endblock meta %}
+
+{% block content %}
+<div class="tx-wrapper">
+    <div class="tx-container" style="grid-template-columns: 1fr;">
+        <section class="tx-main">
+            <div class="tx-header">
+                <h1 class="tx-title">Detail Transaksi COD</h1>
+                <span class="tx-badge tx-badge--{{ transaksi.status|lower }}">{{ transaksi.get_status_display }}</span>
+            </div>
+
+            <div class="tx-grid-2">
+                <!-- Left: Item & Schedule Details -->
+                <div class="tx-card" style="margin:0;">
+                    <h3>{{ transaksi.listing.title }}</h3>
+                    <p><strong>Harga COD:</strong> Rp {{ transaksi.listing.selling_price }}</p>
+                    <p><strong>Estimasi Hemat:</strong> Rp {{ transaksi.penghematan_rupiah }}</p>
+                    <hr class="tx-sidebar__divider">
+                    <p><strong>Pembeli:</strong> {{ transaksi.buyer.username }}</p>
+                    <p><strong>Penjual:</strong> {{ transaksi.seller.username }}</p>
+                    <p><strong>Lokasi Temu (Titik COD):</strong> {{ transaksi.titik_cod.nama_lokasi }}</p>
+                    <p><strong>Patokan Lokasi:</strong> {{ transaksi.titik_cod.deskripsi_detail|default:"-" }}</p>
+                    <p><strong>Jadwal Temu:</strong> {{ transaksi.jadwal_temu|date:"d F Y, H:i" }} WIB</p>
+                    <p><strong>Catatan/Kontak Buyer:</strong> {{ transaksi.catatan_buyer|default:"-" }}</p>
+                    {% if transaksi.alasan_batal %}
+                        <p style="color:#b91c1c;"><strong>Alasan Batal/Tolak:</strong> {{ transaksi.alasan_batal }}</p>
+                    {% endif %}
+
+                    <div class="tx-card__actions" style="margin-top:20px; flex-wrap:wrap;">
+                        <a href="{% url 'transaksi:riwayat_transaksi' %}" class="tx-btn tx-btn--outline">← Kembali</a>
+
+                        {% if is_buyer and transaksi.status == 'DIAJUKAN' %}
+                            <a href="{% url 'transaksi:edit_pengajuan' transaksi.id %}" class="tx-btn">Ubah Jadwal/Titik</a>
+                            <form method="post" action="{% url 'transaksi:batalkan_pengajuan' transaksi.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="tx-btn tx-btn--reject" onclick="return confirm('Batalkan pengajuan ini?')">Batalkan Pengajuan</button>
+                            </form>
+                        {% endif %}
+
+                        {% if is_seller and transaksi.status == 'DISETUJUI' %}
+                            <form method="post" action="{% url 'transaksi:selesaikan_transaksi' transaksi.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="tx-btn tx-btn--approve">Tandai Transaksi Selesai ✓</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Right: Two-Way Review (AJAX) when status == SELESAI -->
+                <div class="tx-card" style="margin:0;">
+                    <h3>Ulasan Transaksi</h3>
+                    {% if transaksi.status == 'SELESAI' %}
+                        <form id="ulasan-ajax-form" class="tx-form-group">
+                            {% csrf_token %}
+                            {{ ulasan_form.as_p }}
+                            <button type="submit" class="tx-btn">
+                                {% if user_ulasan %}Perbarui Ulasan (AJAX){% else %}Kirim Ulasan (AJAX){% endif %}
+                            </button>
+                        </form>
+                        <p id="ulasan-feedback" style="color:#15803d; font-weight:600; margin-top:10px; display:none;"></p>
+                    {% else %}
+                        <p style="color:#555;">Ulasan baru dapat diberikan setelah transaksi COD berstatus <strong>Selesai</strong>.</p>
+                    {% endif %}
+
+                    <hr class="tx-sidebar__divider">
+                    <h4>Daftar Ulasan pada Transaksi Ini</h4>
+                    <div id="ulasan-list-container">
+                        {% for ul in transaksi.ulasan_list.all %}
+                            <div style="border-bottom:1px solid #eee; padding:8px 0;">
+                                <strong>{{ ul.reviewer.username }}</strong> memberi rating <strong>⭐ {{ ul.rating }}/5</strong>
+                                <p style="margin:4px 0;">{{ ul.komentar }}</p>
+                            </div>
+                        {% empty %}
+                            <p id="no-ulasan-msg" style="color:#666;">Belum ada ulasan.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+{% if transaksi.status == 'SELESAI' %}
+<script>
+document.getElementById('ulasan-ajax-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    fetch("{% url 'transaksi:submit_ulasan_ajax' transaksi.id %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        const fb = document.getElementById('ulasan-feedback');
+        if (data.success) {
+            fb.textContent = data.message + ` (Rata-rata rating lawan transaksi kini: ⭐ ${data.ulasan.avg_rating_reviewee})`;
+            fb.style.display = 'block';
+
+            const noMsg = document.getElementById('no-ulasan-msg');
+            if (noMsg) noMsg.remove();
+
+            // Safe DOM creation (prevents XSS)
+            const container = document.getElementById('ulasan-list-container');
+            const item = document.createElement('div');
+            item.style.cssText = 'border-bottom:1px solid #eee; padding:8px 0;';
+            
+            const header = document.createElement('strong');
+            header.textContent = `${data.ulasan.reviewer} memberi rating ⭐ ${data.ulasan.rating}/5 (Baru diperbarui)`;
+            
+            const comment = document.createElement('p');
+            comment.style.margin = '4px 0';
+            comment.textContent = data.ulasan.komentar;
+
+            item.appendChild(header);
+            item.appendChild(comment);
+            container.prepend(item);
+        } else {
+            alert('Gagal menyimpan ulasan. Pastikan rating 1-5 terisi.');
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock content %}
