@@ -30,17 +30,32 @@
                     <a href="{% url 'main:show_main' %}#faq">FAQ</a>
                 </div>
                 <div class="nav__actions">
-                    <a class="btn btn--nav-muted" href="#">Masuk</a>
-                    <a class="btn btn--nav-light" href="#">Daftar sekarang</a>
+                    {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                    <a class="btn btn--nav-muted" href="{% url 'accounts:user_list' %}">Admin</a>
+                    {% endif %}
+                    <a class="btn btn--nav-light" href="{% url 'accounts:profile' %}">Profil</a>
+                    <form action="{% url 'accounts:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn--nav-muted" type="submit">Keluar</button>
+                    </form>
+                    {% else %}
+                    <a class="btn btn--nav-muted" href="{% url 'accounts:login' %}">Masuk</a>
+                    <a class="btn btn--nav-light" href="{% url 'accounts:register' %}">Daftar sekarang</a>
+                    {% endif %}
                 </div>
             </div>
         </nav>
     </header>
 
     <main>
+        {% if messages %}
+        <div class="flash">{% include "partials/messages.html" %}</div>
+        {% endif %}
         {% block content %}{% endblock content %}
     </main>
 
+    {% block footer_band %}
     <div class="footer-band">
         <footer class="footer">
             <div class="footer__cta">
@@ -68,6 +83,7 @@
             </div>
         </footer>
     </div>
+    {% endblock footer_band %}
     <footer class="site-footer">
         <div class="site-footer__about">
             <a class="site-footer__brand" href="{% url 'main:show_main' %}">
@@ -88,8 +104,8 @@
             <div>
                 <h3 class="site-footer__heading">Akun</h3>
                 <ul>
-                    <li><a href="#">Masuk</a></li>
-                    <li><a href="#">Daftar sekarang</a></li>
+                    <li><a href="{% url 'accounts:login' %}">Masuk</a></li>
+                    <li><a href="{% url 'accounts:register' %}">Daftar sekarang</a></li>
                 </ul>
             </div>
             <div>

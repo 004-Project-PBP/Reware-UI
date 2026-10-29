@@ -1,0 +1,28 @@
+{% extends 'accounts/layout.html' %}
+
+{% block title %}Kelola akun · Reware.ui{% endblock title %}
+
+{% block page %}
+<header class="page__head">
+    <div>
+        <h1 class="page__title">Nonaktifkan atau hapus akun</h1>
+        <p class="page__subtitle">Pilih salah satu. Kamu akan langsung keluar setelahnya.</p>
+    </div>
+</header>
+
+<form class="panel panel--narrow" method="post">
+    {% csrf_token %}
+    <h2 class="panel__title">Nonaktifkan</h2>
+    <p class="muted">Akunmu disembunyikan dan tidak bisa dipakai login. Admin bisa mengaktifkannya lagi.</p>
+    <div class="form-actions">
+        <button class="btn btn--sm btn--dark" type="submit" name="action" value="deactivate">Nonaktifkan akun</button>
+    </div>
+
+    <h2 class="panel__title panel__title--spaced">Hapus permanen</h2>
+    <p class="muted">Profil dan brand favoritmu ikut terhapus dan tidak bisa dikembalikan.</p>
+    <div class="form-actions">
+        <button class="btn btn--sm btn--danger" type="submit" name="action" value="delete">Hapus akun</button>
+        <a class="btn btn--sm btn--light" href="{% url 'accounts:profile' %}">Batal</a>
+    </div>
+</form>
+{% endblock page %}

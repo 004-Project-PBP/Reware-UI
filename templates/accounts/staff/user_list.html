@@ -1,0 +1,88 @@
+{% extends 'accounts/layout.html' %}
+
+{% block title %}Kelola pengguna · Reware.ui{% endblock title %}
+
+{% block page %}
+<header class="page__head">
+    <div>
+        <h1 class="page__title">Kelola pengguna</h1>
+        <p class="page__subtitle">{{ users|length }} akun ditemukan</p>
+    </div>
+    <div class="page__actions">
+        <a class="btn btn--sm btn--dark" href="{% url 'accounts:user_create' %}">Tambah akun</a>
+    </div>
+</header>
+
+<form class="inline-form toolbar" method="get">
+    <label class="visually-hidden" for="user-search">Cari</label>
+    <div class="field__control">
+        <input id="user-search" type="search" name="q" value="{{ query }}" placeholder="Cari nama atau email">
+    </div>
+    <label class="visually-hidden" for="user-status">Status</label>
+    <div class="field__control">
+        <select id="user-status" name="status">
+            {% for value, label in status_options %}
+            <option value="{{ value }}"{% if value == status %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button class="btn btn--sm btn--dark" type="submit">Filter</button>
+</form>
+
+<div class="panel table-wrap">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Email</th>
+                <th>Peran</th>
+                <th>Verifikasi</th>
+                <th>Status</th>
+                <th><span class="visually-hidden">Aksi</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in users %}
+            <tr>
+                <td>
+                    {{ account.profile.name }}
+                    {% if account.is_staff %}<span class="pill pill--muted">Admin</span>{% endif %}
+                </td>
+                <td>{{ account.email|default:account.username }}</td>
+                <td>{{ account.profile.get_role_display }}</td>
+                <td>
+                    {% if account.profile.is_verified %}
+                    <span class="pill pill--green">Terverifikasi</span>
+                    {% else %}
+                    <span class="pill pill--olive">Belum</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if account.is_active %}
+                    <span class="pill pill--muted">Aktif</span>
+                    {% else %}
+                    <span class="pill pill--red">Diblokir</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="table__actions">
+                        <a class="btn btn--sm btn--light" href="{% url 'accounts:user_edit' account.pk %}">Edit</a>
+                        {% if account != user %}
+                        <form action="{% url 'accounts:user_toggle_active' account.pk %}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn--sm btn--light" type="submit">{% if account.is_active %}Blokir{% else %}Aktifkan{% endif %}</button>
+                        </form>
+                        <a class="btn btn--sm btn--danger" href="{% url 'accounts:user_delete' account.pk %}">Hapus</a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td class="table__empty" colspan="6">Tidak ada pengguna yang cocok.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock page %}

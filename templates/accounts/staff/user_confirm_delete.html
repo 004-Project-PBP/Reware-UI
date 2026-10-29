@@ -1,0 +1,24 @@
+{% extends 'accounts/layout.html' %}
+
+{% block title %}Hapus akun · Reware.ui{% endblock title %}
+
+{% block page %}
+<header class="page__head">
+    <div>
+        <h1 class="page__title">Hapus akun</h1>
+        <p class="page__subtitle">{{ edited_user.email|default:edited_user.username }}</p>
+    </div>
+</header>
+
+<form class="panel panel--narrow" method="post">
+    {% csrf_token %}
+    <p class="muted">
+        Akun {{ edited_user.profile.name }} beserta profil dan brand favoritnya akan dihapus permanen.
+        Kalau hanya ingin mencegah login, blokir akunnya saja.
+    </p>
+    <div class="form-actions">
+        <button class="btn btn--sm btn--danger" type="submit">Hapus permanen</button>
+        <a class="btn btn--sm btn--light" href="{% url 'accounts:user_list' %}">Batal</a>
+    </div>
+</form>
+{% endblock page %}
