@@ -42,8 +42,8 @@
   </div>
 
   <div class="lp-stats">
-    <div class="lp-stat"><span>Total Listing</span><strong>{{ stats.total }}</strong></div>
-    <div class="lp-stat"><span>Tersedia</span><strong>{{ stats.available }}</strong></div>
+    <div class="lp-stat"><span>Total Listing</span><strong id="stat-total">{{ stats.total }}</strong></div>
+  <div class="lp-stat"><span>Tersedia</span><strong id="stat-available">{{ stats.available }}</strong></div>
     <div class="lp-stat"><span>Total Wishlist Masuk</span><strong>—</strong></div>
     <div class="lp-stat"><span>Pengajuan Beli Masuk</span><strong>—</strong></div>
   </div>
@@ -92,7 +92,7 @@
           <td>
             <form method="post" action="{% url 'listings:set_status' l.pk %}">
               {% csrf_token %}
-              <select class="lp-select" name="status" onchange="this.form.submit()">
+              <select class="lp-select" name="status">
                 {% for value, label in statuses %}
                   <option value="{{ value }}" {% if l.status == value %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
@@ -116,4 +116,33 @@
     </table>
   </div>
 </div>
+<script>
+  document.querySelectorAll(".lp-select").forEach(function (sel) {
+    sel.dataset.prev = sel.value;
+    sel.addEventListener("change", async function () {
+      const form = sel.form;
+      sel.disabled = true;
+      try {
+        const resp = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) throw new Error(data.error || "Gagal");
+        sel.dataset.prev = sel.value;
+        document.getElementById("stat-total").textContent = data.total;
+        document.getElementById("stat-available").textContent = data.available;
+        // kalau lagi difilter status tertentu, baris yang statusnya berubah hilang
+        const filter = new URLSearchParams(window.location.search).get("status");
+        if (filter && filter !== data.status) sel.closest("tr").remove();
+      } catch (e) {
+        sel.value = sel.dataset.prev;
+        alert("Gagal mengubah status. Coba lagi.");
+      } finally {
+        sel.disabled = false;
+      }
+    });
+  });
+</script>
 {% endblock %}
