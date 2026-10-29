@@ -2,14 +2,19 @@
 env/
 venv/
 .env*
+!.env.example
 
-# Django Database & Cache
+# Django Database, Cache & Media
 db.sqlite3
+db.sqlite3-journal
 __pycache__/
-*.pyc
+*.py[cod]
+media/
+staticfiles/
 
 # OS & IDE Files
 .DS_Store
+Thumbs.db
 .vscode/*
 !.vscode/settings.json
 .idea/

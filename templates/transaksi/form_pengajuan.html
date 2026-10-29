@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Pengajuan{% else %}Ajukan Beli{% endif %} · Reware.ui{% endblock title %}
+
+{% block meta %}
+<link rel="stylesheet" href="{% static 'css/transaksi.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock meta %}
+
+{% block content %}
+<div class="tx-wrapper">
+    <div class="tx-container" style="grid-template-columns: 1fr;">
+        <section class="tx-main">
+            <div class="tx-header">
+                <h1 class="tx-title">{% if is_edit %}Ubah Jadwal / Titik COD{% else %}Ajukan Pembelian COD{% endif %}</h1>
+                <a href="{% url 'transaksi:riwayat_transaksi' %}" class="tx-btn tx-btn--outline">← Kembali</a>
+            </div>
+
+            <p style="margin-top:14px;">Item: <strong>{{ listing.title }}</strong> — <strong>Rp {{ listing.selling_price }}</strong></p>
+
+            <div class="tx-grid-2">
+                <div class="tx-form-group">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="tx-btn" style="margin-top:8px;">
+                            {% if is_edit %}Simpan Perubahan{% else %}Kirim Pengajuan Beli{% endif %}
+                        </button>
+                    </form>
+                </div>
+
+                <div>
+                    <label style="font-weight:600; font-size:13.5px; display:block; margin-bottom:8px;">
+                        Pilih / Lihat Titik COD Kampus UI
+                    </label>
+                    <div id="map" style="height: 340px; border-radius: 12px; border: 1.5px solid #888;"></div>
+                    <small id="lokasi-deskripsi" style="display:block; margin-top:8px; color:#444;"></small>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+{{ titik_cod_list|json_script:"titik-cod-data" }}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const map = L.map('map').setView([-6.3646, 106.8286], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const lokasiData = JSON.parse(document.getElementById('titik-cod-data').textContent);
+    const selectEl = document.getElementById('select-titik-cod');
+    const deskripsiEl = document.getElementById('lokasi-deskripsi');
+    const markers = {};
+
+    lokasiData.forEach(loc => {
+        const marker = L.marker([loc.latitude, loc.longitude]).addTo(map);
+        marker.bindPopup(`<b>${loc.nama_lokasi}</b><br>${loc.deskripsi_detail}`);
+        markers[loc.id] = { marker, data: loc };
+
+        marker.on('click', () => {
+            selectEl.value = loc.id;
+            deskripsiEl.textContent = "Patokan: " + loc.deskripsi_detail;
+        });
+    });
+
+    if (selectEl) {
+        selectEl.addEventListener('change', (e) => {
+            const selected = markers[e.target.value];
+            if (selected) {
+                map.flyTo([selected.data.latitude, selected.data.longitude], 17);
+                selected.marker.openPopup();
+                deskripsiEl.textContent = "Patokan: " + selected.data.deskripsi_detail;
+            }
+        });
+    }
+</script>
+{% endblock content %}
