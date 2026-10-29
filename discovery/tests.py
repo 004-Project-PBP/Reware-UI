@@ -47,12 +47,12 @@ class TemplateCompileTests(TestCase):
     TEMPLATES = [
         "discovery/base.html",
         "discovery/catalog.html",
-        "discovery/partials/item_grid.html",
+        "discovery/partial/item_grid.html",
         "discovery/wishlist.html",
         "discovery/saved_searches.html",
         "discovery/history.html",
         "discovery/admin_stats.html",
-        "discovery/partials/curation_home.html",
+        "discovery/partial/curation_home.html",
     ]
 
     def test_templates_compile(self):
@@ -78,7 +78,7 @@ class BaseTemplateTests(DiscoveryDataMixin, TestCase):
 
     def test_loads_discovery_js(self):
         html = self.render("discovery/base.html")
-        self.assertIn("discovery/js/discovery.js", html)
+        self.assertIn("js/discovery.js", html)
 
 
 class CatalogTemplateTests(DiscoveryDataMixin, TestCase):
@@ -119,9 +119,9 @@ class CatalogTemplateTests(DiscoveryDataMixin, TestCase):
 
 
 class ItemGridPartialTests(DiscoveryDataMixin, TestCase):
-    """discovery/partials/item_grid.html — cards, heart state, AJAX reuse."""
+    """discovery/partial/item_grid.html — cards, heart state, AJAX reuse."""
 
     def test_card_content(self):
-        html = render_to_string("discovery/partials/item_grid.html",
+        html = render_to_string("discovery/partial/item_grid.html",
                                 {"items": [self.item], "wishlist_ids": set()})
        
