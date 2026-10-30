@@ -38,7 +38,10 @@
       <h1>Lapak Saya</h1>
       <p>Kelola semua item preloved yang kamu jual</p>
     </div>
-    <a class="lp-btn" href="{% url 'listings:create' %}">+ Unggah Item Baru</a>
+    <div>
+      <a class="lp-btn" href="{% url 'transaksi:riwayat_transaksi' %}?peran=seller&status=DIAJUKAN" style="background:#fff;color:#12151A;border:1px solid #E2E4E9;margin-right:8px">Pengajuan masuk</a>
+      <a class="lp-btn" href="{% url 'listings:create' %}">+ Unggah Item Baru</a>
+    </div>
   </div>
 
   <div class="lp-stats">
