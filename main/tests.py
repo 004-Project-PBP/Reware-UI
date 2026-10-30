@@ -130,3 +130,105 @@ class BrandDetailTests(TestCase):
     def test_unknown_brand_returns_404(self):
         resp = self.client.get(reverse("main:brand_detail", args=[9999]))
         self.assertEqual(resp.status_code, 404)
+
+class BrandProposalTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("proposer", password="pass12345")
+        self.other = User.objects.create_user("other", password="pass12345")
+        self.category = Category.objects.create(name="Atasan")
+        self.brand = make_brand(
+            "Pull&Bear", "Lokal", 100000, 400000, [self.category],
+            submitted_by=self.user,
+        )
+
+    def login(self, username="proposer"):
+        self.client.login(username=username, password="pass12345")
+
+    # --- propose ---
+    def test_propose_requires_login(self):
+        resp = self.client.get(reverse("main:propose_brand"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(reverse(settings.LOGIN_URL), resp["Location"])
+
+    def test_propose_creates_unverified_brand_owned_by_user(self):
+        self.login()
+        resp = self.client.post(
+            reverse("main:propose_brand"),
+            proposal_data([self.category], name="Bershka"),
+        )
+        new = Brand.objects.get(name="Bershka")
+        self.assertRedirects(resp, reverse("main:brand_detail", args=[new.pk]))
+        self.assertFalse(new.is_verified)
+        self.assertEqual(new.submitted_by, self.user)
+
+    def test_propose_invalid_is_not_saved(self):
+        self.login()
+        resp = self.client.post(
+            reverse("main:propose_brand"),
+            proposal_data([self.category], name="Bershka", retail_price_min="900000"),
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(Brand.objects.filter(name="Bershka").exists())
+
+    # --- edit ---
+    def test_owner_can_edit_unverified_brand(self):
+        self.login()
+        url = reverse("main:edit_proposed_brand", args=[self.brand.pk])
+        resp = self.client.post(url, proposal_data([self.category], name="Pull and Bear"))
+        self.assertRedirects(resp, reverse("main:brand_detail", args=[self.brand.pk]))
+        self.brand.refresh_from_db()
+        self.assertEqual(self.brand.name, "Pull and Bear")
+
+    def test_other_user_cannot_edit(self):
+        self.login("other")
+        url = reverse("main:edit_proposed_brand", args=[self.brand.pk])
+        resp = self.client.post(url, proposal_data([self.category], name="Dibajak"))
+        self.assertEqual(resp.status_code, 403)
+        self.brand.refresh_from_db()
+        self.assertEqual(self.brand.name, "Pull&Bear")
+
+    def test_verified_brand_cannot_be_edited(self):
+        self.brand.is_verified = True
+        self.brand.save()
+        self.login()
+        url = reverse("main:edit_proposed_brand", args=[self.brand.pk])
+        resp = self.client.post(url, proposal_data([self.category], name="Ganti"))
+        self.assertEqual(resp.status_code, 403)
+
+    # --- delete ---
+    def test_owner_can_delete_unverified_brand(self):
+        self.login()
+        resp = self.client.post(reverse("main:delete_proposed_brand", args=[self.brand.pk]))
+        self.assertRedirects(resp, reverse("main:brand_directory"))
+        self.assertFalse(Brand.objects.filter(pk=self.brand.pk).exists())
+
+    def test_other_user_cannot_delete(self):
+        self.login("other")
+        resp = self.client.post(reverse("main:delete_proposed_brand", args=[self.brand.pk]))
+        self.assertEqual(resp.status_code, 403)
+        self.assertTrue(Brand.objects.filter(pk=self.brand.pk).exists())
+
+    def test_delete_rejects_get(self):
+        self.login()
+        resp = self.client.get(reverse("main:delete_proposed_brand", args=[self.brand.pk]))
+        self.assertEqual(resp.status_code, 405)
+
+    # --- follow (AJAX) ---
+    def test_follow_requires_login(self):
+        resp = self.client.post(reverse("main:toggle_follow_brand", args=[self.brand.pk]))
+        self.assertEqual(resp.status_code, 302)
+
+    def test_follow_toggles_and_returns_json(self):
+        self.login("other")
+        url = reverse("main:toggle_follow_brand", args=[self.brand.pk])
+        data = self.client.post(url).json()
+        self.assertTrue(data["is_following"])
+        self.assertEqual(data["follower_count"], 1)
+        data = self.client.post(url).json()
+        self.assertFalse(data["is_following"])
+        self.assertEqual(data["follower_count"], 0)
+
+    def test_follow_rejects_get(self):
+        self.login("other")
+        resp = self.client.get(reverse("main:toggle_follow_brand", args=[self.brand.pk]))
+        self.assertEqual(resp.status_code, 405)
