@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True) 
+    co2_saved_per_item_kg = models.FloatField(default=0.0, help_text="Estimasi CO2 (kg) yang dihemat per item")
+    water_saved_per_item_liters = models.FloatField(default=0.0, help_text="Estimasi Air (liter) yang dihemat per item")
 
     def __str__(self):
         return self.name
