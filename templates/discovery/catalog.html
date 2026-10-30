@@ -1,0 +1,65 @@
+{% extends "discovery/base.html" %}
+{% block content %}
+<nav class="catalog__crumb">
+  {% if category %} / <a href="{% url 'discovery:catalog_category' category.slug %}">{{ category.name }}</a>{% endif %}
+  {% if brand %} / <span>{{ brand.name }}</span>{% endif %}
+</nav>
+
+{% if user.is_authenticated %}
+<div style="margin-top: 25px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+    <a class="btn btn--primary" href="{% url 'discovery:propose_item' %}">+ Usulkan Produk Baru</a>
+</div>
+{% endif %}
+
+{% if not category %}
+  <div class="catalog__chips">
+    {% for c in categories %}
+      <a class="chip chip--lg" href="{% url 'discovery:catalog_category' c.slug %}">{{ c.name }} ({{ c.n_items }})</a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="catalog__chips">
+    {% for b in brands %}
+      <a class="chip chip--lg {% if b.slug == filters.brand %}chip--on{% endif %}"
+         href="{% url 'discovery:catalog_brand' category.slug b.slug %}">{{ b.name }}</a>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form id="filter-form" class="filters" method="get" action="">
+  <input type="search" name="q" value="{{ filters.q }}" placeholder="Cari item / brand…">
+  <select name="size"><option value="">Ukuran</option>
+    {% for s in sizes %}<option value="{{ s }}" {% if s == filters.size %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+  <select name="condition"><option value="">Kondisi</option>
+    {% for val,label in conditions %}<option value="{{ val }}" {% if val == filters.condition %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+  <select name="cod"><option value="">Titik COD</option>
+    {% for c in cod_locations %}<option value="{{ c }}" {% if c == filters.cod %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+  <label>Harga jual
+    <input type="range" name="price_min" min="0" max="500000" step="5000" value="{{ filters.price_min|default:0 }}">
+    <input type="range" name="price_max" min="0" max="500000" step="5000" value="{{ filters.price_max|default:500000 }}">
+    <output class="filters__label-output" id="price-label"></output>
+  </label>
+  <label>Harga ritel (Public API)
+    <input type="number" name="retail_min" value="{{ filters.retail_min|default:'' }}" placeholder="min">
+    <input type="number" name="retail_max" value="{{ filters.retail_max|default:'' }}" placeholder="max">
+  </label>
+  <select name="sort">{% for val,label in sort_choices %}
+    <option value="{{ val }}" {% if val == filters.sort %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+  {% if category %}<input type="hidden" name="category" value="{{ category.slug }}">{% endif %}
+  {% if brand %}<input type="hidden" name="brand" value="{{ brand.slug }}">{% endif %}
+  <div class="filters__actions">
+    {% if user.is_authenticated %}
+      <button type="button" class="btn btn--nav-light" id="save-search"
+              data-url="{% url 'discovery:api_saved_search_create' %}">Simpan pencarian</button>
+    {% endif %}
+  </div>
+</form>
+
+<p class="catalog__count"><span id="result-count">{{ total }}</span> item ditemukan{% if blocked %} — kata kunci diblokir admin.{% endif %}</p>
+
+<div id="item-grid" class="cards" data-api="{% url 'discovery:api_catalog' %}">
+  {% include "discovery/partial/item_grid.html" %}
+</div>
+<button id="load-more" class="btn btn--nav-light catalog__more" data-page="{{ next_page }}"
+        {% if not has_next %}hidden{% endif %}>Muat lebih banyak</button>
+{% endblock %}

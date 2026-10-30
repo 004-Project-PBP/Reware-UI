@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .lp-wrap { max-width: 1100px; margin: 0 auto; padding: 60px 24px 72px; color: #12151A; }
+  .lp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .lp-head h1 { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.015em; }
+  .lp-head p { margin: 4px 0 0; color: #6B6E76; font-size: 14px; }
+  .lp-btn { display: inline-block; background: #12151A; color: #fff; border: 0; border-radius: 999px; padding: 12px 22px; font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer; }
+  .lp-btn:hover { opacity: .9; }
+  .lp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .lp-stat { background: #fff; border: 1px solid #ECEDF0; border-radius: 14px; padding: 16px 20px; box-shadow: 0 1px 2px rgba(16,18,22,.03); }
+  .lp-stat span { display: block; font-size: 12px; color: #8A8D96; margin-bottom: 4px; }
+  .lp-stat strong { font-size: 24px; font-weight: 800; }
+  .lp-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .lp-chip { padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; text-decoration: none; background: #F5F5F7; color: #12151A; border: 1px solid #E2E4E9; }
+  .lp-chip-active { background: #12151A; color: #fff; border-color: #12151A; }
+  .lp-card { background: #fff; border: 1px solid #ECEDF0; border-radius: 16px; box-shadow: 0 1px 2px rgba(16,18,22,.03), 0 10px 28px rgba(16,18,22,.05); padding: 8px 24px; overflow-x: auto; }
+  .lp-table { width: 100%; border-collapse: collapse; }
+  .lp-table th { text-align: left; font-size: 11.5px; letter-spacing: .03em; text-transform: uppercase; color: #8A8D96; padding: 16px 8px 10px; }
+  .lp-table td { padding: 14px 8px; border-top: 1px solid #ECEDF0; font-size: 14px; vertical-align: middle; }
+  .lp-title { font-weight: 700; }
+  .lp-sub { font-size: 12px; color: #8A8D96; }
+  .lp-save { color: #16A34A; font-size: 12px; font-weight: 600; }
+  .lp-select { padding: 7px 10px; border: 1px solid #E2E4E9; border-radius: 8px; font-size: 13px; background: #fff; }
+  .lp-link { color: #12151A; font-weight: 700; font-size: 13px; text-decoration: none; margin-right: 12px; }
+  .lp-link-danger { color: #B42318; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-weight: 700; font-size: 13px; }
+  .lp-empty { text-align: center; color: #8A8D96; padding: 32px 0; }
+  .lp-head h1 { line-height: 1.2; }
+  .lp-head p { margin-top: 8px; }
+  .lp-item { display: flex; align-items: center; gap: 12px; }
+  .lp-thumb { width: 46px; height: 46px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #F0F1F3; }
+  .lp-thumb-empty { display: flex; align-items: center; justify-content: center; font-size: 9px; color: #A8ABB3; }
+</style>
+
+<div class="lp-wrap">
+  <div class="lp-head">
+    <div>
+      <h1>Lapak Saya</h1>
+      <p>Kelola semua item preloved yang kamu jual</p>
+    </div>
+    <div>
+      <a class="lp-btn" href="{% url 'transaksi:riwayat_transaksi' %}?peran=seller&status=DIAJUKAN" style="background:#fff;color:#12151A;border:1px solid #E2E4E9;margin-right:8px">Pengajuan masuk</a>
+      <a class="lp-btn" href="{% url 'listings:create' %}">+ Unggah Item Baru</a>
+    </div>
+  </div>
+
+  <div class="lp-stats">
+    <div class="lp-stat"><span>Total Listing</span><strong id="stat-total">{{ stats.total }}</strong></div>
+  <div class="lp-stat"><span>Tersedia</span><strong id="stat-available">{{ stats.available }}</strong></div>
+    <div class="lp-stat"><span>Total Wishlist Masuk</span><strong>—</strong></div>
+    <div class="lp-stat"><span>Pengajuan Beli Masuk</span><strong>—</strong></div>
+  </div>
+
+  <div class="lp-chips">
+    <a class="lp-chip {% if not active_status %}lp-chip-active{% endif %}" href="{% url 'listings:my_listings' %}">Semua</a>
+    {% for value, label in statuses %}
+      <a class="lp-chip {% if active_status == value %}lp-chip-active{% endif %}" href="?status={{ value }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="lp-card">
+    <table class="lp-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Harga / Hemat</th>
+          <th>Stok</th>
+          <th>Status</th>
+          <th>Wishlist</th>
+          <th>Pengajuan</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for l in listings %}
+        <tr>
+          <td>
+            <div class="lp-item">
+              {% if l.photo %}
+                <img class="lp-thumb" src="{{ l.photo.url }}" alt="{{ l.title }}">
+              {% else %}
+                <div class="lp-thumb lp-thumb-empty">Foto</div>
+              {% endif %}
+              <div>
+                <div class="lp-title"><a href="{% url 'listings:detail' l.pk %}" style="color:inherit;text-decoration:none">{{ l.title }}</a></div>
+                <div class="lp-sub">{{ l.get_condition_display }} · {{ l.size }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div>Rp {{ l.price|floatformat:"0g" }}</div>
+            {% if l.savings_percent %}<div class="lp-save">Hemat {{ l.savings_percent }}%</div>{% endif %}
+          </td>
+          <td>{{ l.stock }}</td>
+          <td>
+            <form method="post" action="{% url 'listings:set_status' l.pk %}">
+              {% csrf_token %}
+              <select class="lp-select" name="status">
+                {% for value, label in statuses %}
+                  <option value="{{ value }}" {% if l.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </td>
+          <td>—</td>
+          <td>—</td>
+          <td>
+            <a class="lp-link" href="{% url 'listings:update' l.pk %}">Kelola →</a>
+            <form method="post" action="{% url 'listings:delete' l.pk %}" style="display:inline">
+              {% csrf_token %}
+              <button class="lp-link-danger" type="submit">Hapus</button>
+            </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="lp-empty">Belum ada listing.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+  document.querySelectorAll(".lp-select").forEach(function (sel) {
+    sel.dataset.prev = sel.value;
+    sel.addEventListener("change", async function () {
+      const form = sel.form;
+      sel.disabled = true;
+      try {
+        const resp = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) throw new Error(data.error || "Gagal");
+        sel.dataset.prev = sel.value;
+        document.getElementById("stat-total").textContent = data.total;
+        document.getElementById("stat-available").textContent = data.available;
+        // kalau lagi difilter status tertentu, baris yang statusnya berubah hilang
+        const filter = new URLSearchParams(window.location.search).get("status");
+        if (filter && filter !== data.status) sel.closest("tr").remove();
+      } catch (e) {
+        sel.value = sel.dataset.prev;
+        alert("Gagal mengubah status. Coba lagi.");
+      } finally {
+        sel.disabled = false;
+      }
+    });
+  });
+</script>
+{% endblock %}

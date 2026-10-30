@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .ld-wrap { max-width: 1100px; margin: 0 auto; padding: 60px 24px 72px; color: #12151A; }
+  .ld-crumb { font-size: 12.5px; color: #8A8D96; margin-bottom: 16px; }
+  .ld-crumb a { color: inherit; text-decoration: none; }
+  .ld-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+  @media (max-width: 800px) { .ld-grid { grid-template-columns: 1fr; } }
+  .ld-photo { width: 100%; aspect-ratio: 1; border-radius: 18px; background: #F0F1F3; object-fit: cover; display: flex; align-items: center; justify-content: center; color: #A8ABB3; font-size: 14px; border: 1px solid #ECEDF0; }
+  .ld-card { background: #fff; border: 1px solid #ECEDF0; border-radius: 16px; box-shadow: 0 1px 2px rgba(16,18,22,.03), 0 10px 28px rgba(16,18,22,.05); padding: 28px; }
+  .ld-title { margin: 0 0 8px; font-size: 28px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.25; }
+  .ld-price { font-size: 30px; font-weight: 800; margin: 8px 0 4px; }
+  .ld-retail { color: #8A8D96; text-decoration: line-through; font-size: 14px; margin-left: 8px; font-weight: 500; }
+  .ld-pill { display: inline-block; background: #16A34A; color: #fff; font-weight: 700; font-size: 12.5px; padding: 5px 12px; border-radius: 999px; margin-left: 8px; vertical-align: middle; }
+  .ld-badge { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: #F0F1F3; color: #6B6E76; }
+  .ld-badge-ok { background: #ECFDF3; color: #15803D; }
+  .ld-meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+  .ld-chip { padding: 7px 14px; border-radius: 999px; background: #F5F5F7; border: 1px solid #E2E4E9; font-size: 13px; font-weight: 600; color: #51545C; }
+  .ld-sec { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ECEDF0; }
+  .ld-sec h3 { margin: 0 0 8px; font-size: 12.5px; text-transform: uppercase; letter-spacing: .03em; color: #8A8D96; }
+  .ld-sec p { margin: 0; font-size: 14.5px; line-height: 1.6; color: #333; white-space: pre-line; }
+  .ld-btn { display: inline-block; background: #12151A; color: #fff; border: 0; border-radius: 10px; padding: 13px 26px; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; }
+  .ld-btn-ghost { background: #fff; color: #12151A; border: 1px solid #E2E4E9; }
+  .ld-btn[disabled] { opacity: .45; cursor: not-allowed; }
+  .ld-note { font-size: 12.5px; color: #8A8D96; margin-top: 10px; }
+</style>
+
+<div class="ld-wrap">
+  <div class="ld-crumb"><a href="{% url 'discovery:catalog' %}">Katalog</a> / {{ listing.title }}</div>
+
+  <div class="ld-grid">
+
+    <div>
+      {% if listing.photo %}
+        <img class="ld-photo" src="{{ listing.photo.url }}" alt="{{ listing.title }}">
+      {% else %}
+        <div class="ld-photo">Belum ada foto</div>
+      {% endif %}
+    </div>
+
+    <div class="ld-card">
+      <span class="ld-badge {% if listing.status == 'available' %}ld-badge-ok{% endif %}">{{ listing.get_status_display }}</span>
+      <h1 class="ld-title">{{ listing.title }}</h1>
+
+      <div class="ld-price">
+        Rp {{ listing.price|floatformat:"0g" }}
+        {% if listing.savings_percent %}
+          <span class="ld-pill">Hemat {{ listing.savings_percent }}%</span>
+        {% endif %}
+      </div>
+      {% if listing.retail_price %}
+        <div style="font-size:13px;color:#8A8D96;">Harga ritel acuan <span class="ld-retail" style="margin-left:0">Rp {{ listing.retail_price|floatformat:"0g" }}</span></div>
+      {% endif %}
+
+      <div class="ld-meta">
+        <span class="ld-chip">Ukuran {{ listing.size }}</span>
+        <span class="ld-chip">{{ listing.get_condition_display }}</span>
+        <span class="ld-chip">Stok {{ listing.stock }}</span>
+      </div>
+
+      {% if listing.description %}
+      <div class="ld-sec">
+        <h3>Deskripsi</h3>
+        <p>{{ listing.description }}</p>
+      </div>
+      {% endif %}
+
+      {% if user.is_authenticated %}
+        <div class="ld-sec">
+          <h3>Titik COD</h3>
+          <p>{{ listing.cod_point }}</p>
+        </div>
+        <div class="ld-sec">
+          <h3>Penjual</h3>
+          <p>{{ listing.seller.get_username }}</p>
+          <!-- TODO: kontak seller diambil dari profil (Modul 1) -->
+        </div>
+        <div class="ld-sec">
+          {% if listing.seller == user %}
+            <a class="ld-btn ld-btn-ghost" href="{% url 'listings:update' listing.pk %}">Kelola listing ini</a>
+            <a class="ld-btn ld-btn-ghost" href="{% url 'transaksi:riwayat_transaksi' %}?peran=seller&status=DIAJUKAN">Lihat pengajuan masuk</a>
+          {% elif listing.status == 'available' %}
+            <a class="ld-btn" href="{% url 'transaksi:ajukan_dari_listing' listing.pk %}">Ajukan Beli</a>
+          {% else %}
+            <button class="ld-btn" type="button" disabled>Item tidak tersedia</button>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="ld-sec">
+          <a class="ld-btn" href="{% url 'accounts:login' %}?next={{ request.path }}">Masuk untuk mengajukan beli</a>
+          <p class="ld-note">Titik COD dan info penjual hanya tampil untuk akun terverifikasi.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

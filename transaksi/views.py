@@ -1,8 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponseForbidden
-from .models import StubListing, TitikCOD, TransaksiCOD, StubCategory, Ulasan
+from django.http import Http404, HttpResponseForbidden
+from listings.models import Listing
+from .models import StubListing, TitikCOD, TransaksiCOD, Ulasan
+from main.models import Category as StubCategory  # Import the StubCategory model from the same app
 from .forms import PengajuanBeliForm,UlasanForm
 from django.db.models import Q, Avg
 from django.views.decorators.http import require_POST
@@ -10,6 +12,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.core.paginator import Paginator
+from listings.models import Listing as SourceListing  
 
 # 1. BUYER & SELLER: READ & FILTER HISTORY
 @login_required
@@ -74,12 +77,12 @@ def transaction_history(request):
     return render(request, 'transaksi/riwayat_transaksi.html', context)
 
 @login_required
-def detail_transaksi(request, transactionID):
+def detail_transaksi(request, transaksi_id):
     """
     View COD shedule details & counterparty contact
     Strictly visible only to the buyer and seller involved
     """
-    transaction=get_object_or_404(TransaksiCOD,id=transactionID)
+    transaction=get_object_or_404(TransaksiCOD,id=transaksi_id)
     if request.user != transaction.buyer and request.user != transaction.seller:
         return HttpResponseForbidden("Akses ditolak: Anda tidak terlibat dalam transaksi ini.")
 
@@ -97,11 +100,29 @@ def detail_transaksi(request, transactionID):
 #Buyer pov : Create, Update, Cancer COD
 
 @login_required
+def ajukan_dari_listing(request, listing_pk):
+    """
+    Entry point from Modul 3 listing detail: mirror the listing into the
+    Modul 5 flow, then continue to the purchase request form.
+    """
+    listing = get_object_or_404(Listing, pk=listing_pk)
+    if listing.status == Listing.Status.ARCHIVED:
+        raise Http404
+    stub = StubListing.mirror_of(listing)
+    return redirect('transaksi:ajukan_beli', listing_id=stub.id)
+
+
+@login_required
 def ajukan_beli(request,listing_id):
     """
     Buyer submits and order request on an avail listing 
     """
-    listing = get_object_or_404(StubListing,id=listing_id)
+    source_listing = SourceListing.objects.filter(id=listing_id).first()
+    if source_listing:
+        listing = StubListing.mirror_of(source_listing)
+    else:
+        listing = get_object_or_404(StubListing, id=listing_id)
+    
     if listing.status!= StubListing.ListingStatus.TERSEDIA:
         messages.error (request, "Maaf, item ini sudah tidak tersedia")
         return redirect ('transaksi:riwayat_transaksi')
@@ -209,6 +230,7 @@ def respon_pengajuan_ajax(request,transaksi_id):
         listing=transaksi.listing
         listing.status=StubListing.ListingStatus.DIPESAN
         listing.save()
+        listing.sync_status_to_source()
 
         TransaksiCOD.objects.filter(
             listing=listing,
@@ -228,7 +250,6 @@ def respon_pengajuan_ajax(request,transaksi_id):
     elif aksi=='tolak':
         alasan=request.POST.get('alasan','Ditolak oleh penjual')
         transaksi.status= TransaksiCOD.StatusTransaksi.DIBATALKAN
-        transaksi.alasan_batal= alasan
 
         transaksi.alasan_batal = strip_tags(alasan) #sanitization to prevent XSS attacks
         
@@ -259,6 +280,7 @@ def selesaikan_transaksi(request,transaksi_id):
         listing=transaksi.listing
         listing.status=StubListing.ListingStatus.TERJUAL
         listing.save()
+        listing.sync_status_to_source()
         messages.success(request, "Transaksi COD selesai! Silahkan beri ulasan.")
 
     if request.headers.get('x-requested-with')=='XMLHttpRequest':
