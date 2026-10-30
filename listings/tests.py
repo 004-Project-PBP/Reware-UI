@@ -5,6 +5,8 @@ from django.urls import reverse
 
 from .models import Listing
 from .forms import ListingForm
+from django.utils import timezone
+from transaksi.models import StubListing, TitikCOD, TransaksiCOD
 
 
 User = get_user_model()
@@ -94,6 +96,20 @@ class ListingViewTests(TestCase):
         resp = self.client.get(reverse("listings:my_listings") + "?status=available")
         self.assertContains(resp, "Uniqlo Tee")
         self.assertNotContains(resp, "Item Arsip")
+
+    def test_my_listings_counts_pending_requests(self):
+        titik = TitikCOD.objects.create(
+            nama_lokasi="Stasiun UI", latitude="-6.360000", longitude="106.830000"
+        )
+        stub = StubListing.mirror_of(self.listing)
+        TransaksiCOD.objects.create(
+            listing=stub, buyer=self.other, seller=self.seller,
+            titik_cod=titik, jadwal_temu=timezone.now(),
+        )
+        self.client.login(username="seller", password="pass12345")
+        resp = self.client.get(reverse("listings:my_listings"))
+        self.assertEqual(resp.context["pending_total"], 1)
+        self.assertEqual(resp.context["listings"][0].pending_count, 1)
 
     def test_my_listings_shows_placeholder_without_photo(self):
         self.client.login(username="seller", password="pass12345")
