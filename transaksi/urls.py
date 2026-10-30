@@ -9,6 +9,7 @@ urlpatterns = [
     path('<uuid:transaksi_id>/', views.detail_transaksi, name='detail_transaksi'),
 
     # Buyer CRUD
+    path('beli/<int:listing_pk>/', views.ajukan_dari_listing, name='ajukan_dari_listing'),
     path('ajukan/<int:listing_id>/', views.ajukan_beli, name='ajukan_beli'),
     path('<uuid:transaksi_id>/edit/', views.edit_pengajuan, name='edit_pengajuan'),
     path('<uuid:transaksi_id>/batal/', views.batalkan_pengajuan, name='batalkan_pengajuan'),

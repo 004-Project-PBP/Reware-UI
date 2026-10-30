@@ -28,6 +28,14 @@ class StubListing(models.Model):
         related_name='stub_listings'
     )
     category = models.ForeignKey(StubCategory, on_delete=models.SET_NULL, null=True, blank=True)
+    source = models.OneToOneField(
+        'listings.Listing',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='transaksi_mirror',
+        help_text="Listing Modul 3 yang dicerminkan oleh stub ini",
+    )
     title = models.CharField(max_length=200)
     brand = models.CharField(max_length=100, blank=True)
     selling_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -40,8 +48,41 @@ class StubListing(models.Model):
 
     def __str__(self):
         return self.title
-    
-    
+
+    @classmethod
+    def mirror_of(cls, listing):
+        """Get or create the stub that mirrors a Modul 3 Listing."""
+        stub, _ = cls.objects.get_or_create(
+            source=listing,
+            defaults={'seller': listing.seller, 'title': listing.title},
+        )
+        stub.seller = listing.seller
+        stub.title = listing.title
+        stub.selling_price = listing.price
+        stub.retail_price = listing.retail_price or 0
+        # hanya listing yang masih tersedia yang boleh diajukan
+        if listing.status == 'available':
+            stub.status = cls.ListingStatus.TERSEDIA
+        elif listing.status == 'booked':
+            stub.status = cls.ListingStatus.DIPESAN
+        elif listing.status == 'sold':
+            stub.status = cls.ListingStatus.TERJUAL
+        stub.save()
+        return stub
+
+    def sync_status_to_source(self):
+        """Push this stub's status back to the Modul 3 Listing."""
+        if not self.source_id:
+            return
+        mapping = {
+            self.ListingStatus.TERSEDIA: 'available',
+            self.ListingStatus.DIPESAN: 'booked',
+            self.ListingStatus.TERJUAL: 'sold',
+        }
+        self.source.status = mapping[self.status]
+        self.source.save(update_fields=['status'])
+
+
 class TitikCOD(models.Model):
     
     # Master Titik COD Kampus (Stasiun UI, Perpustakaan Pusat, Balairung, Halte Bikun, dll.)
