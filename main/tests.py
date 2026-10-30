@@ -101,3 +101,32 @@ class HomeAndDirectoryTests(TestCase):
         counts = {b.name: b.active_listings_count for b in resp.context["brands"]}
         self.assertEqual(counts["Uniqlo"], 2)
         self.assertEqual(counts["Erigo"], 0)
+
+class BrandDetailTests(TestCase):
+    def setUp(self):
+        self.seller = User.objects.create_user("seller", password="pass12345")
+        self.brand = make_brand("Uniqlo", low=100000, high=300000)
+        make_listing(self.seller, self.brand, price=100000)
+        make_listing(self.seller, self.brand, price=60000)
+        make_listing(self.seller, self.brand, price=10000, status=Listing.Status.SOLD)
+        self.url = reverse("main:brand_detail", args=[self.brand.pk])
+
+    def test_guest_sees_locked_stats(self):
+        resp = self.client.get(self.url)
+        self.assertContains(resp, "Statistik Detail Brand Dikunci")
+        self.assertEqual(resp.context["avg_thrift_price"], 0)
+
+    def test_logged_in_sees_stats(self):
+        self.client.login(username="seller", password="pass12345")
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.context["active_listings_count"], 2)
+        self.assertEqual(resp.context["avg_thrift_price"], 80000)
+        self.assertEqual(resp.context["avg_savings_pct"], 60)
+
+    def test_only_available_listings_shown(self):
+        resp = self.client.get(self.url)
+        self.assertEqual(resp.context["listings"].count(), 2)
+
+    def test_unknown_brand_returns_404(self):
+        resp = self.client.get(reverse("main:brand_detail", args=[9999]))
+        self.assertEqual(resp.status_code, 404)
