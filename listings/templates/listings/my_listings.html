@@ -48,7 +48,7 @@
     <div class="lp-stat"><span>Total Listing</span><strong id="stat-total">{{ stats.total }}</strong></div>
   <div class="lp-stat"><span>Tersedia</span><strong id="stat-available">{{ stats.available }}</strong></div>
     <div class="lp-stat"><span>Total Wishlist Masuk</span><strong>—</strong></div>
-    <div class="lp-stat"><span>Pengajuan Beli Masuk</span><strong>—</strong></div>
+    <div class="lp-stat"><span>Pengajuan Beli Masuk</span><strong>{% if pending_total %}{{ pending_total }} baru{% else %}—{% endif %}</strong></div>
   </div>
 
   <div class="lp-chips">
@@ -103,7 +103,11 @@
             </form>
           </td>
           <td>—</td>
-          <td>—</td>
+          <td>
+            {% if l.pending_count %}
+              <a class="lp-link" href="{% url 'transaksi:riwayat_transaksi' %}?peran=seller&status=DIAJUKAN">{{ l.pending_count }} baru</a>
+            {% else %}—{% endif %}
+          </td>
           <td>
             <a class="lp-link" href="{% url 'listings:update' l.pk %}">Kelola →</a>
             <form method="post" action="{% url 'listings:delete' l.pk %}" style="display:inline">
