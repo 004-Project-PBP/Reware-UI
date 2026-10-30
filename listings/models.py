@@ -25,13 +25,21 @@ class Listing(models.Model):
     )
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True)
+    brand = models.ForeignKey(
+        "main.Brand", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="listings",
+    )
+    category = models.ForeignKey(
+        "main.Category", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="listings",
+    )
     photo = models.ImageField(upload_to="listings/", blank=True, null=True)
     size = models.CharField(max_length=3, choices=SIZE_CHOICES, default="M")
     condition = models.CharField(
         max_length=10, choices=Condition.choices, default=Condition.GOOD
     )
     price = models.PositiveIntegerField()
-    retail_price = models.PositiveIntegerField(null=True, blank=True)  # TEMP: nanti ganti ke harga ritel dari Brand (Modul 2)
+    retail_price = models.PositiveIntegerField(null=True, blank=True)  
     stock = models.PositiveIntegerField(default=1)
     cod_point = models.CharField(max_length=100)  # sementara, nanti ganti sesuai Modul 5
     status = models.CharField(
@@ -50,4 +58,11 @@ class Listing(models.Model):
         if self.retail_price and self.retail_price > self.price:
             return round((self.retail_price - self.price) / self.retail_price * 100)
         return None
+    
+    def save(self, *args, **kwargs):
+        if self.brand_id and not self.retail_price:
+            low, high = self.brand.retail_price_min, self.brand.retail_price_max
+            if high:
+                self.retail_price = (low + high) // 2
+        super().save(*args, **kwargs)
         
