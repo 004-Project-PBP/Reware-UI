@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{# Account pages: no sign-up band above the footer #}
+{% block footer_band %}{% endblock footer_band %}
+
+{% block content %}
+<div class="page">
+    {% block page %}{% endblock page %}
+</div>
+{% endblock content %}

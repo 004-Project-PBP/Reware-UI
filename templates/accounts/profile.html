@@ -1,0 +1,125 @@
+{% extends 'accounts/layout.html' %}
+{% load static %}
+
+{% block title %}Profil · Reware.ui{% endblock title %}
+
+{% block page %}
+<header class="page__head">
+    <div class="profile-head">
+        {% if profile.photo_url %}
+        <img class="avatar" src="{{ profile.photo_url }}" width="72" height="72" alt="">
+        {% else %}
+        <span class="avatar" aria-hidden="true">{{ profile.name|first|upper }}</span>
+        {% endif %}
+        <div>
+            <h1 class="page__title">{{ profile.name }}</h1>
+            <p class="page__subtitle">{{ user.email|default:user.username }}</p>
+            <div class="pill-row">
+                {% for label, tone in profile.badges %}
+                <span class="pill pill--lg pill--{{ tone }}">{{ label }}</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="page__actions">
+        <a class="btn btn--sm btn--dark" href="{% url 'accounts:edit_profile' %}">Edit profil</a>
+        <a class="btn btn--sm btn--light" href="{% url 'accounts:change_password' %}">Ubah kata sandi</a>
+    </div>
+</header>
+
+{% if not profile.is_complete %}
+<p class="message message--info">
+    Profilmu belum lengkap. <a href="{% url 'accounts:edit_profile' %}">Lengkapi sekarang</a>
+</p>
+{% endif %}
+
+<div class="panel-grid">
+    <section class="panel">
+        <h2 class="panel__title">Informasi akun</h2>
+        <dl class="data-list">
+            <dt>Nama lengkap</dt>
+            <dd>{{ user.first_name|default:"-" }}</dd>
+            <dt>Nama tampilan</dt>
+            <dd>{{ profile.display_name|default:"-" }}</dd>
+            <dt>Peran</dt>
+            <dd>{{ profile.get_role_display }}</dd>
+            <dt>Status verifikasi</dt>
+            <dd>
+                {% if profile.is_verified %}
+                <span class="pill pill--green">Terverifikasi</span>
+                {% else %}
+                <span class="pill pill--olive">Menunggu verifikasi admin</span>
+                {% endif %}
+            </dd>
+            <dt>Fakultas</dt>
+            <dd>{{ profile.get_faculty_display|default:"-" }}</dd>
+            <dt>Angkatan</dt>
+            <dd>{{ profile.batch|default:"-" }}</dd>
+            <dt>Nomor kontak</dt>
+            <dd>{{ profile.phone|default:"-" }}</dd>
+            <dt>Titik COD favorit</dt>
+            <dd>{{ profile.get_cod_point_display|default:"-" }}</dd>
+        </dl>
+    </section>
+
+    <section class="panel">
+        <h2 class="panel__title">Brand favorit</h2>
+        {% if favorite_brands %}
+        <ul class="chip-list">
+            {% for favorite in favorite_brands %}
+            <li class="chip">
+                {{ favorite.brand }}
+                <form action="{% url 'accounts:remove_favorite_brand' favorite.pk %}" method="post">
+                    {% csrf_token %}
+                    <button class="chip__remove" type="submit" aria-label="Hapus {{ favorite.brand }}">×</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="muted">Belum ada brand favorit.</p>
+        {% endif %}
+
+        {% if brand_form.fields.brand.choices %}
+        <form class="inline-form" action="{% url 'accounts:add_favorite_brand' %}" method="post">
+            {% csrf_token %}
+            <label class="visually-hidden" for="{{ brand_form.brand.id_for_label }}">Brand</label>
+            <div class="field__control">{{ brand_form.brand }}</div>
+            <button class="btn btn--sm btn--dark" type="submit">Tambah</button>
+        </form>
+        {% endif %}
+    </section>
+</div>
+
+<section class="panel">
+    <h2 class="panel__title">Rekomendasi untukmu</h2>
+    {% if recommended_items %}
+    <div class="item-grid">
+        {% for item in recommended_items %}
+        <div class="item">
+            <span class="item__thumb">
+                {% if item.image %}<img src="{% static 'img/'|add:item.image %}" alt="">{% endif %}
+            </span>
+            <span class="item__text">
+                <span class="item__name">{{ item.name }}</span>
+                <span class="item__meta">{{ item.brand }} · {{ item.price }}</span>
+            </span>
+            <span class="pill pill--green">−{{ item.discount }}%</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% elif favorite_brands %}
+    <p class="muted">Belum ada item dari brand favoritmu. Cek lagi nanti.</p>
+    {% else %}
+    <p class="muted">Tambahkan brand favorit untuk melihat rekomendasi item.</p>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <h2 class="panel__title">Nonaktifkan atau hapus akun</h2>
+    <p class="muted">Akun nonaktif bisa diaktifkan lagi oleh admin. Akun yang dihapus tidak bisa dikembalikan.</p>
+    <div class="form-actions">
+        <a class="btn btn--sm btn--danger" href="{% url 'accounts:close_account' %}">Kelola akun</a>
+    </div>
+</section>
+{% endblock page %}

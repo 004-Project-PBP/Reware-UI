@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order History · Reware.ui{% endblock title %}
+
+{% block meta %}
+<link rel="stylesheet" href="{% static 'css/transaksi.css' %}">
+{% endblock meta %}
+
+{% block content %}
+<div class="tx-wrapper">
+    <div class="tx-container">
+        
+        <!-- Left Sidebar-->
+        <aside class="tx-sidebar">
+            <p class="tx-sidebar__user">{{ request.user.username }}</p>
+            <hr class="tx-sidebar__divider">
+            
+            <p class="tx-sidebar__heading">Pembelian (Buyer)</p>
+            <ul class="tx-sidebar__nav">
+                <li>
+                    <a href="{% url 'transaksi:riwayat_transaksi' %}?peran=buyer&status=DISETUJUI"
+                       class="{% if current_role == 'buyer' and current_status == 'DISETUJUI' %}active{% endif %}">
+                       Ongoing
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'transaksi:riwayat_transaksi' %}?peran=buyer"
+                       class="{% if current_role == 'buyer' and not current_status %}active{% endif %}">
+                       Daftar Transaksi
+                    </a>
+                </li>
+            </ul>
+
+            <hr class="tx-sidebar__divider">
+            <p class="tx-sidebar__heading">Penjualan (Seller)</p>
+            <ul class="tx-sidebar__nav">
+                <li>
+                    <a href="{% url 'transaksi:riwayat_transaksi' %}?peran=seller&status=DIAJUKAN"
+                       class="{% if current_role == 'seller' and current_status == 'DIAJUKAN' %}active{% endif %}">
+                       Pengajuan Masuk
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'transaksi:riwayat_transaksi' %}?peran=seller"
+                       class="{% if current_role == 'seller' and not current_status %}active{% endif %}">
+                       Riwayat Penjualan
+                    </a>
+                </li>
+            </ul>
+
+            <hr class="tx-sidebar__divider">
+            <p class="tx-sidebar__heading">Profil Saya</p>
+            <ul class="tx-sidebar__nav">
+                <li><a href="{% url 'transaksi:daftar_ulasan' %}">Ulasan</a></li>
+                <li><a href="{% url 'transaksi:dashboard_dampak' %}">Dampak Lingkungan</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Order History Card -->
+        <section class="tx-main">
+            <form method="get" action="{% url 'transaksi:riwayat_transaksi' %}">
+                <input type="hidden" name="peran" value="{{ current_role }}">
+                <input type="hidden" name="status" value="{{ current_status }}">
+
+                <div class="tx-header">
+                    <h1 class="tx-title">
+                        {% if current_role == 'seller' %}Seller Order History{% else %}Order History{% endif %}
+                    </h1>
+                    <input type="text" name="q" value="{{ search_query }}" class="tx-search-input"
+                           placeholder="Search berdasarkan ID atau nama produk">
+                </div>
+
+                <!-- Status Pills + Rubric Filters (Category, Brand, Date) -->
+                <div class="tx-filters-bar">
+                    <div class="tx-pills">
+                        <a href="?peran={{ current_role }}" class="tx-pill {% if not current_status %}active{% endif %}">Semua</a>
+                        <a href="?peran={{ current_role }}&status=DIAJUKAN" class="tx-pill {% if current_status == 'DIAJUKAN' %}active{% endif %}">Diajukan</a>
+                        <a href="?peran={{ current_role }}&status=DISETUJUI" class="tx-pill {% if current_status == 'DISETUJUI' %}active{% endif %}">Disetujui</a>
+                        <a href="?peran={{ current_role }}&status=SELESAI" class="tx-pill {% if current_status == 'SELESAI' %}active{% endif %}">Selesai</a>
+                        <a href="?peran={{ current_role }}&status=DIBATALKAN" class="tx-pill {% if current_status == 'DIBATALKAN' %}active{% endif %}">Dibatalkan</a>
+                    </div>
+
+                    <div class="tx-extra-filters">
+                        <select name="kategori" onchange="this.form.submit()">
+                            <option value="">Semua Kategori</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if request.GET.kategori == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="text" name="brand" value="{{ request.GET.brand }}" placeholder="Brand..." style="width:90px;">
+                        <input type="date" name="start_date" value="{{ request.GET.start_date }}" title="Dari tanggal">
+                        <input type="date" name="end_date" value="{{ request.GET.end_date }}" title="Sampai tanggal">
+                        <button type="submit" class="tx-btn" style="padding: 5px 12px;">Filter</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Transaction List or Empty State -->
+            {% if transaksi_list %}
+                {% for tx in transaksi_list %}
+                <div class="tx-card" id="tx-card-{{ tx.id }}">
+                    <div class="tx-card__top">
+                        <div class="tx-card__meta">
+                            <div>{{ tx.jadwal_temu|date:"d F Y · H:i" }} WIB</div>
+                            <div>ID: {{ tx.id|truncatechars:13 }}</div>
+                        </div>
+                        <span class="tx-badge tx-badge--{{ tx.status|lower }}" id="tx-badge-{{ tx.id }}">
+                            {{ tx.get_status_display }}
+                        </span>
+                    </div>
+
+                    <div class="tx-card__body">
+                        <div class="tx-product-img">Product<br>Image</div>
+                        <div class="tx-product-info">
+                            <h4>{{ tx.listing.title }}</h4>
+                            <p>Rp {{ tx.listing.selling_price }}</p>
+                            <p>📍 <strong>Titik COD:</strong> {{ tx.titik_cod.nama_lokasi }}</p>
+                            <p>👤 {% if current_role == 'seller' %}Buyer: {{ tx.buyer.username }}{% else %}Seller: {{ tx.seller.username }}{% endif %}</p>
+                        </div>
+                    </div>
+
+                    <div class="tx-card__bottom">
+                        <div class="tx-total">
+                            <div>Total</div>
+                            <strong>Rp {{ tx.listing.selling_price }}</strong>
+                        </div>
+
+                        <div class="tx-card__actions" id="tx-actions-{{ tx.id }}">
+                            {% if current_role == 'seller' and tx.status == 'DIAJUKAN' %}
+                                <button type="button" class="tx-btn tx-btn--approve" onclick="responPengajuan('{{ tx.id }}', 'setujui')">Setujui</button>
+                                <button type="button" class="tx-btn tx-btn--reject" onclick="responPengajuan('{{ tx.id }}', 'tolak')">Tolak</button>
+                            {% endif %}
+                            <a href="{% url 'transaksi:detail_transaksi' tx.id %}" class="tx-btn">Cek Detail Pesanan</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <!-- Pagination -->
+                {% if transaksi_list.has_other_pages %}
+                    <div class="tx-pagination">
+                        {% if transaksi_list.has_previous %}
+                            <a href="?{{ query_string }}&page={{ transaksi_list.previous_page_number }}" class="tx-page-link">&laquo;</a>
+                        {% endif %}
+
+                        {% for num in transaksi_list.paginator.page_range %}
+                            {% if transaksi_list.number == num %}
+                                <span class="tx-page-link active">{{ num }}</span>
+                            {% elif num > transaksi_list.number|add:'-3' and num < transaksi_list.number|add:'3' %}
+                                <!-- Only show 2 pages before and after the current page -->
+                                <a href="?{{ query_string }}&page={{ num }}" class="tx-page-link">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if transaksi_list.has_next %}
+                            <a href="?{{ query_string }}&page={{ transaksi_list.next_page_number }}" class="tx-page-link">&raquo;</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+            {% else %}
+                <!-- Empty State  -->
+                <div class="tx-empty">
+                    <svg width="110" height="180" viewBox="0 0 120 200" fill="none" stroke="#111" stroke-width="2.5">
+                        <ellipse cx="65" cy="40" rx="18" ry="22" transform="rotate(20 65 40)"/>
+                        <line x1="50" y1="35" x2="82" y2="42"/>
+                        <circle cx="72" cy="44" r="1.5" fill="#111"/>
+                        <circle cx="77" cy="46" r="1.5" fill="#111"/>
+                        <path d="M52 58 C42 85, 42 120, 45 135 L65 135 C65 110, 62 85, 65 60"/>
+                        <path d="M47 135 L46 190 M62 135 L62 190"/>
+                        <path d="M60 80 L78 125"/>
+                        <path d="M76 123 L108 175 L112 180 M108 175 L102 178"/>
+                    </svg>
+                    <h3>Oh no.. It’s empty</h3>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+
+<script>
+function responPengajuan(transaksiId, aksi) {
+    const formData = new FormData();
+    formData.append('aksi', aksi);
+    if (aksi === 'tolak') {
+        const alasan = prompt("Masukkan alasan penolakan (opsional):", "Jadwal tidak cocok.");
+        if (alasan === null) return;
+        formData.append('alasan', alasan);
+    }
+
+    fetch(`/transaksi/${transaksiId}/respon/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const badge = document.getElementById(`tx-badge-${transaksiId}`);
+            badge.textContent = data.new_status;
+            badge.className = 'tx-badge ' + (aksi === 'setujui' ? 'tx-badge--disetujui' : 'tx-badge--dibatalkan');
+            // Remove approve/reject buttons without reloading page
+            const actions = document.getElementById(`tx-actions-${transaksiId}`);
+            actions.querySelectorAll('button').forEach(btn => btn.remove());
+            if (typeof updateNavbarCounter === 'function') updateNavbarCounter();
+            alert(data.message);
+        } else {
+            alert(data.message || 'Gagal memproses pengajuan.');
+        }
+    });
+}
+</script>
+{% endblock content %}

@@ -26,7 +26,7 @@
 </style>
 
 <div class="ld-wrap">
-  <div class="ld-crumb"><a href="{% url 'listings:my_listings' %}">Lapak</a> / {{ listing.title }}</div>
+  <div class="ld-crumb"><a href="{% url 'discovery:catalog' %}">Katalog</a> / {{ listing.title }}</div>
 
   <div class="ld-grid">
 
@@ -78,16 +78,16 @@
         <div class="ld-sec">
           {% if listing.seller == user %}
             <a class="ld-btn ld-btn-ghost" href="{% url 'listings:update' listing.pk %}">Kelola listing ini</a>
+            <a class="ld-btn ld-btn-ghost" href="{% url 'transaksi:riwayat_transaksi' %}?peran=seller&status=DIAJUKAN">Lihat pengajuan masuk</a>
           {% elif listing.status == 'available' %}
-            <!-- TODO: sambungkan ke alur pengajuan beli (Modul 5) -->
-            <button class="ld-btn" type="button">Ajukan Beli</button>
+            <a class="ld-btn" href="{% url 'transaksi:ajukan_dari_listing' listing.pk %}">Ajukan Beli</a>
           {% else %}
             <button class="ld-btn" type="button" disabled>Item tidak tersedia</button>
           {% endif %}
         </div>
       {% else %}
         <div class="ld-sec">
-          <a class="ld-btn" href="{% url 'admin:login' %}?next={{ request.path }}">Masuk untuk mengajukan beli</a>
+          <a class="ld-btn" href="{% url 'accounts:login' %}?next={{ request.path }}">Masuk untuk mengajukan beli</a>
           <p class="ld-note">Titik COD dan info penjual hanya tampil untuk akun terverifikasi.</p>
         </div>
       {% endif %}

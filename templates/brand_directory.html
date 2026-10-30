@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Katalog Brand · Reware.ui{% endblock title %}
+
+{% block meta %}
+<link rel="stylesheet" href="{% static 'css/brand.css' %}">
+<script src="{% static 'js/brand.js' %}" defer></script>
+{% endblock meta %}
+
+{% block content %}
+<section class="hero">
+    <p class="badge">
+        <span> Direktori Master Brand · Referensi Harga Ritel</span>
+    </p>
+    <h1 class="hero__title">Katalog Brand<br>Fashion Kampus</h1>
+    <p class="hero__text">
+        Cek acuan harga ritel resmi dan persentase penghematan sebelum membeli atau menjual pakaian preloved.
+    </p>
+    {% if user.is_authenticated %}
+    <div style="margin-top: 25px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <a class="btn btn--primary" href="{% url 'main:propose_brand' %}">+ Usulkan Brand Baru</a>
+    </div>
+    {% endif %}
+</section>
+
+<section class="catalog-wrap" id="katalog">
+    {# filter bar #}
+    <form id="brand-filter-form" class="filter-bar reveal" onsubmit="return false;">
+        <input type="text" id="filter-search" name="q" class="filter-input" placeholder="Cari nama brand...">
+        
+        <select id="filter-category" name="category" class="filter-select">
+            <option value="">Semua Kategori</option>
+            {% for cat in categories %}
+            <option value="{{ cat.name }}">{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+
+        <select id="filter-type" name="brand_type" class="filter-select">
+            <option value="">Semua Tipe Brand</option>
+            <option value="Fast Fashion">Fast Fashion</option>
+            <option value="Lokal">Lokal</option>
+            <option value="Premium">Premium</option>
+            <option value="Vintage">Vintage</option>
+        </select>
+
+        <select id="filter-price" name="max_price" class="filter-select">
+            <option value="">Semua Rentang Ritel</option>
+            <option value="250000">&le; Rp 250.000</option>
+            <option value="500000">&le; Rp 500.000</option>
+            <option value="1000000">&le; Rp 1.000.000</option>
+        </select>
+    </form>
+
+    {# grid of brand cards #}
+    <div id="brand-grid" class="brand-grid">
+        {% for brand in brands %}
+        <article class="brand-card reveal" data-brand-id="{{ brand.id }}">
+            <div>
+                <div class="brand-card__head">
+                    <a href="{% url 'main:brand_detail' brand.id %}" class="brand-card__logo">
+                        {% if brand.logo_url %}
+                        <img src="{{ brand.logo_url }}" alt="{{ brand.name }}">
+                        {% else %}
+                        <span>{{ brand.name|slice:":1" }}</span>
+                        {% endif %}
+                    </a>
+                    <div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px;">
+                            <span class="pill pill--olive">{{ brand.brand_type }}</span>
+                            {% if not brand.is_verified %}
+                            <span class="pill pill--green">Usulan Pengguna</span>
+                            {% endif %}
+                        </div>
+                        <h2 class="brand-card__title">
+                            <a href="{% url 'main:brand_detail' brand.id %}">{{ brand.name }}</a>
+                        </h2>
+                    </div>
+                </div>
+
+                {# logged-in users only to see detailed statistics #}
+                {% if user.is_authenticated %}
+                <div class="brand-card__stats">
+                    <span>Acuan Ritel: <strong>Rp {{ brand.retail_price_min }} – Rp {{ brand.retail_price_max }}</strong></span>
+                    <span>Listing Aktif: <strong>{{ brand.active_listings_count|default:"0" }} item</strong></span>
+                    <span>Rata-rata Hemat: <strong style="color: var(--green);">{{ brand.avg_savings|default:"65" }}%</strong></span>
+                </div>
+                {% else %}
+                <div class="brand-card__stats">
+                    <span><em>Login untuk melihat statistik harga &amp; penghematan.</em></span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="brand-card__foot">
+                <a class="btn btn--nav-light" href="{% url 'main:brand_detail' brand.id %}">Lihat Detail</a>
+
+                {% if user.is_authenticated %}
+                <button type="button"
+                        class="btn btn--follow js-follow-btn {% if user in brand.followers.all %}is-following{% endif %}"
+                        data-brand-id="{{ brand.id }}"
+                        data-url="{% url 'main:toggle_follow_brand' brand.id %}">
+                    <span class="js-follow-label">
+                        {% if user in brand.followers.all %}Mengikuti{% else %}+ Ikuti{% endif %}
+                    </span>
+                    &nbsp;·&nbsp;
+                    <span class="js-follower-count">{{ brand.followers.count }}</span>
+                </button>
+                {% else %}
+                <span class="chip">{{ brand.followers.count }} pengikut</span>
+                {% endif %}
+            </div>
+            <div class="brand-card__actions">
+                <a class="chip" href="{% url 'main:brand_detail' brand.id %}">Detail →</a>
+
+                {# If the logged-in user is the author and it's unverified, give them a quick Edit link right from the directory #}
+                {% if user.is_authenticated and not brand.is_verified and brand.submitted_by == user %}
+                <a class="btn-follow" style="background: var(--green-bg); color: var(--green); border-color: var(--green);" href="{% url 'main:edit_proposed_brand' brand.id %}">
+                    Edit Usulan
+                </a>
+                {% endif %}
+
+                {# Standard Follow Button #}
+                {% if user.is_authenticated %}
+                    {% if user in brand.followers.all %}
+                    <button type="button" class="btn-follow js-follow-btn is-following" data-brand-id="{{ brand.id }}" data-url="{% url 'main:toggle_follow_brand' brand.id %}">
+                        <span class="js-follow-label">Mengikuti</span> · <span class="js-follower-count">{{ brand.followers.count }}</span>
+                    </button>
+                    {% else %}
+                    <button type="button" class="btn-follow js-follow-btn" data-brand-id="{{ brand.id }}" data-url="{% url 'main:toggle_follow_brand' brand.id %}">
+                        <span class="js-follow-label">+ Ikuti</span> · <span class="js-follower-count">{{ brand.followers.count }}</span>
+                    </button>
+                    {% endif %}
+                {% else %}
+                <span class="chip">{{ brand.followers.count }} pengikut</span>
+                {% endif %}
+            </div>
+        </article>
+        {% empty %}
+        <p id="empty-brand-msg" style="grid-column: 1 / -1; text-align: center; color: var(--ink-soft); padding: 48px 0;">
+            Tidak ada brand yang sesuai dengan filter pencarian.
+        </p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock content %}

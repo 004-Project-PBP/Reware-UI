@@ -1,0 +1,17 @@
+{% for c in collections %}
+<section class="curation">
+  <h3 class="curation__title">{{ c.title }}</h3>
+  {% if c.description %}<p class="curation__text">{{ c.description }}</p>{% endif %}
+
+  <div class="curation__items">
+    {% for e in c.entries.all %}
+    <a class="curation__item" href="{% url 'discovery:catalog' %}?q={{ e.item.name|urlencode }}">
+      <span class="curation__name">{{ e.item.name }}</span>
+      <span class="curation__price">{{ e.item.price_rp }}</span>
+    </a>
+    {% empty %}
+    <p class="curation__text">Koleksi ini masih kosong.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}

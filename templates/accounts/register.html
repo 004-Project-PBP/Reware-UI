@@ -1,0 +1,30 @@
+{% extends 'accounts/auth_base.html' %}
+{% load static %}
+
+{% block title %}Daftar · Reware.ui{% endblock title %}
+
+{% block content %}
+<form class="auth-form" method="post">
+    {% csrf_token %}
+    <div class="auth-form__head">
+        <h1 class="auth-form__title">Create a new account</h1>
+        <p class="auth-form__hint">email wajib berakhiran @ui.ac.id</p>
+    </div>
+
+    {% include "partials/messages.html" %}
+    {% include "partials/form_errors.html" %}
+
+    {% for field in form %}
+    {% include "partials/field.html" %}
+    {% endfor %}
+
+    <button class="auth-form__submit" type="submit">Register</button>
+    <p class="auth__alt">sudah punya akun? <a href="{% url 'accounts:login' %}">Login</a></p>
+
+    <p class="auth__or">or</p>
+    <a class="sso" href="{% url 'accounts:sso_login' %}">
+        <img class="sso__emblem" src="{% static 'img/sso-ui.png' %}" width="34" height="37" alt="">
+        login dengan SSO UI
+    </a>
+</form>
+{% endblock content %}

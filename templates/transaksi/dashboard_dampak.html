@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Dampak Lingkungan · Reware.ui{% endblock title %}
+{% block meta %}<link rel="stylesheet" href="{% static 'css/transaksi.css' %}">{% endblock meta %}
+
+{% block content %}
+<div class="tx-wrapper">
+    <div class="tx-container">
+        <aside class="tx-sidebar">
+            <p class="tx-sidebar__user">{{ request.user.username }}</p>
+            <hr class="tx-sidebar__divider">
+            <ul class="tx-sidebar__nav">
+                <li><a href="{% url 'transaksi:riwayat_transaksi' %}">← Order History</a></li>
+                <li><a href="{% url 'transaksi:daftar_ulasan' %}">Ulasan</a></li>
+                <li><a href="{% url 'transaksi:dashboard_dampak' %}" class="active">Dampak Lingkungan</a></li>
+            </ul>
+        </aside>
+
+        <section class="tx-main">
+            <div class="tx-header">
+                <h1 class="tx-title">Dashboard Dampak Lingkungan 🌱</h1>
+                <button type="button" class="tx-btn" onclick="refreshDampakAJAX()">Perbarui Angka</button>
+            </div>
+
+            <div class="tx-stat-grid">
+                <div class="tx-stat-card">
+                    <h4>Item Terselamatkan</h4>
+                    <div class="stat-val" id="stat-item">{{ dampak.total_item }}</div>
+                </div>
+                <div class="tx-stat-card">
+                    <h4>Total Penghematan Rupiah</h4>
+                    <div class="stat-val" id="stat-rupiah">Rp {{ dampak.total_rupiah|floatformat:0 }}</div>
+                </div>
+                <div class="tx-stat-card">
+                    <h4>Estimasi CO₂ Dihemat</h4>
+                    <div class="stat-val"><span id="stat-co2">{{ dampak.total_co2 }}</span> kg</div>
+                </div>
+                <div class="tx-stat-card">
+                    <h4>Estimasi Air Dihemat</h4>
+                    <div class="stat-val"><span id="stat-air">{{ dampak.total_air }}</span> L</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+function refreshDampakAJAX() {
+    fetch("{% url 'transaksi:api_dampak_data' %}")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('stat-item').textContent = data.total_item;
+            document.getElementById('stat-rupiah').textContent = 'Rp ' + Math.round(data.total_rupiah).toLocaleString('id-ID');
+            document.getElementById('stat-co2').textContent = data.total_co2;
+            document.getElementById('stat-air').textContent = data.total_air;
+        });
+}
+</script>
+{% endblock content %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static discovery_tags %}
+
+{% block title %}Katalog · Reware.ui{% endblock title %}
+
+{% block nav_links %}
+<a href="{% url 'discovery:catalog' %}">Katalog</a>
+{% if user.is_authenticated %}
+<a href="{% url 'discovery:wishlist' %}">Wishlist (<span id="wishlist-count">{% wishlist_count %}</span>)</a>
+<a href="{% url 'discovery:saved_searches' %}">Pencarian tersimpan</a>
+<a href="{% url 'discovery:history' %}">Riwayat</a>
+{% if user.is_staff %}<a href="{% url 'discovery:admin_stats' %}">Statistik</a>{% endif %}
+{% endif %}
+{% endblock nav_links %}
+
+{% block main_class %}dshell__panel dshell__panel--site{% endblock main_class %}
+
+{% block scripts %}<script src="{% static 'js/discovery.js' %}"></script>{% endblock scripts %}
