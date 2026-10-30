@@ -79,7 +79,7 @@ class ListingViewTests(TestCase):
     def test_my_listings_requires_login(self):
         resp = self.client.get(reverse("listings:my_listings"))
         self.assertEqual(resp.status_code, 302)
-        self.assertIn(settings.LOGIN_URL, resp["Location"])
+        self.assertIn(reverse(settings.LOGIN_URL), resp["Location"])
 
     def test_my_listings_shows_only_own_items(self):
         make_listing(self.other, title="Punya Orang Lain")
