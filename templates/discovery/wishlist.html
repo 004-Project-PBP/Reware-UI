@@ -1,22 +1,8 @@
-{% load static %}<!doctype html>
-<html lang="id">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Wishlist · Reware.ui</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body class="dshell dshell--wish">
-  <header class="dshell__topbar">
-    <a href="{% url 'main:show_main' %}">← Beranda</a>
-    <nav class="dshell__nav">
-      <a href="{% url 'discovery:catalog' %}">Katalog</a>
-      <a href="{% url 'discovery:saved_searches' %}">Pencarian Tersimpan</a>
-      <a href="{% url 'discovery:history' %}">Riwayat</a>
-    </nav>
-  </header>
+{% extends "discovery/base.html" %}
 
-  <section class="dshell__panel">
+{% block title %}Wishlist · Reware.ui{% endblock title %}
+
+{% block content %}
     <div class="wish__hero">
       <svg class="wish__star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.8l3 6.9 7.4.6-5.6 4.9 1.7 7.3L12 17.6l-6.5 3.9 1.7-7.3L1.6 9.3l7.4-.6z"/></svg>
       <h1 class="wish__title">My Wishlist</h1>
@@ -56,8 +42,10 @@
     </div>
 
     <div class="wish__empty" id="w-empty" {% if entries %}hidden{% endif %}>Add Products Here</div>
-  </section>
+{% endblock content %}
 
+{# wishlist keeps its own handlers, so discovery.js is not loaded here #}
+{% block scripts %}
   <script>
     const csrf = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || "";
     const H = {"X-Requested-With": "XMLHttpRequest", "X-CSRFToken": csrf};
@@ -80,5 +68,4 @@
       }
     });
   </script>
-</body>
-</html>
+{% endblock scripts %}

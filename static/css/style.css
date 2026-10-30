@@ -2523,3 +2523,54 @@ button.btn--dark:hover {
   font-size: 12px;
   line-height: 18px;
 }
+/* Discovery pages rendered inside the site layout */
+.dshell__panel--site {
+  flex: 1;
+  margin: 0;
+  min-height: 60vh;
+  padding-top: 32px;
+}
+
+/* Menus with 4+ links (catalog pages when logged in) need a wider bar */
+.nav__links a {
+    white-space: nowrap;
+}
+
+@media (min-width: 761px) {
+    .nav:has(.nav__links a:nth-child(4)) {
+        grid-template-columns: auto 1fr auto;
+        column-gap: 28px;
+        max-width: min(1280px, 100%);
+    }
+
+    .nav:has(.nav__links a:nth-child(4)) .nav__links {
+        justify-content: center;
+        gap: 28px;
+        font-size: 17px;
+    }
+
+    .nav:has(.nav__links a:nth-child(4)) .nav__actions {
+        flex-shrink: 0;
+    }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+    .nav:has(.nav__links a:nth-child(4)) {
+        column-gap: 12px;
+        padding: 0 14px 0 16px;
+    }
+
+    .nav:has(.nav__links a:nth-child(4)) .nav__brand {
+        gap: 8px;
+        font-size: 20px;
+    }
+
+    .nav:has(.nav__links a:nth-child(4)) .nav__links {
+        gap: 12px;
+        font-size: 13px;
+    }
+
+    .nav:has(.nav__links a:nth-child(4)) .nav__actions .btn {
+        padding-inline: 10px;
+    }
+}

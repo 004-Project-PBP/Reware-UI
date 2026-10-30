@@ -1,31 +1,18 @@
+{% extends "base.html" %}
 {% load static discovery_tags %}
-<!doctype html>
-<html lang="id">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Katalog · Reware.ui{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body class="dshell dshell--catalog">
-  <header class="dshell__topbar">
-    <a href="{% url 'main:show_main' %}">← Beranda</a>
-    <nav class="dshell__nav">
-      <a href="{% url 'discovery:catalog' %}">Katalog</a>
-      {% if user.is_authenticated %}
-        <a href="{% url 'discovery:wishlist' %}">Wishlist (<span id="wishlist-count">{% wishlist_count %}</span>)</a>
-        <a href="{% url 'discovery:saved_searches' %}">Pencarian tersimpan</a>
-        <a href="{% url 'discovery:history' %}">Riwayat</a>
-        <a href="{% url 'listings:create' %}">Jual barang</a>
-        <a href="{% url 'transaksi:riwayat_transaksi' %}">Transaksi</a>
-      {% else %}
-        <a href="{% url 'accounts:login' %}?next={{ request.path }}">Masuk</a>
-      {% endif %}
-    </nav>
-  </header>
-  <section class="dshell__panel">
-    {% block content %}{% endblock %}
-  </section>
-  <script src="{% static 'js/discovery.js' %}"></script>
-</body>
-</html>
+
+{% block title %}Katalog · Reware.ui{% endblock title %}
+
+{% block nav_links %}
+<a href="{% url 'discovery:catalog' %}">Katalog</a>
+{% if user.is_authenticated %}
+<a href="{% url 'discovery:wishlist' %}">Wishlist (<span id="wishlist-count">{% wishlist_count %}</span>)</a>
+<a href="{% url 'discovery:saved_searches' %}">Pencarian tersimpan</a>
+<a href="{% url 'discovery:history' %}">Riwayat</a>
+{% if user.is_staff %}<a href="{% url 'discovery:admin_stats' %}">Statistik</a>{% endif %}
+{% endif %}
+{% endblock nav_links %}
+
+{% block main_class %}dshell__panel dshell__panel--site{% endblock main_class %}
+
+{% block scripts %}<script src="{% static 'js/discovery.js' %}"></script>{% endblock scripts %}

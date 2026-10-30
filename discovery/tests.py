@@ -62,11 +62,11 @@ class TemplateCompileTests(TestCase):
 
 
 class BaseTemplateTests(DiscoveryDataMixin, TestCase):
-    """discovery/base.html — shell, topbar, wishlist counter."""
+    """discovery/base.html — site navbar, wishlist counter."""
 
     def test_anonymous_topbar(self):
         html = self.render("discovery/base.html")
-        self.assertIn("dshell__topbar", html)
+        self.assertIn("nav__brand", html)
         self.assertIn("Masuk", html)
         self.assertNotIn("Wishlist (", html)
 
@@ -125,3 +125,31 @@ class ItemGridPartialTests(DiscoveryDataMixin, TestCase):
         html = render_to_string("discovery/partial/item_grid.html",
                                 {"items": [self.item], "wishlist_ids": set()})
        
+
+class CatalogSiteNavbarTests(TestCase):
+    """Catalog pages share the site navbar, with catalog links."""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user("nav", password="pw12345!")
+
+    def test_catalog_uses_site_navbar(self):
+        resp = self.client.get(reverse("discovery:catalog"))
+        self.assertContains(resp, 'class="nav__brand"')
+        self.assertContains(resp, 'class="site-footer"')
+
+    def test_logged_in_catalog_nav_has_catalog_links(self):
+        self.client.force_login(self.user)
+        for name in ("catalog", "wishlist", "saved_searches", "history"):
+            resp = self.client.get(reverse(f"discovery:{name}"))
+            self.assertEqual(resp.status_code, 200, name)
+            self.assertContains(resp, 'class="nav__brand"')
+            self.assertContains(resp, 'id="wishlist-count"')
+
+
+class SignupBannerPlacementTests(TestCase):
+    """The 'Siap mulai thrifting' banner belongs to the landing page only."""
+
+    def test_banner_only_on_landing(self):
+        self.assertContains(self.client.get(reverse("main:show_main")), "footer-band")
+        for name in ("discovery:catalog", "accounts:login", "accounts:register"):
+            self.assertNotContains(self.client.get(reverse(name)), "footer-band", msg_prefix=name)

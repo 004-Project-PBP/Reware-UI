@@ -25,6 +25,7 @@
             </button>
             <div class="nav__menu" id="nav-menu">
                 <div class="nav__links">
+                    {% block nav_links %}
                     <a href="{% url 'discovery:catalog' %}">Katalog</a>
                     {% if user.is_authenticated %}
                     <a href="{% url 'listings:my_listings' %}">Lapak saya</a>
@@ -33,6 +34,7 @@
                     <a href="{% url 'main:show_main' %}#cara-kerja">Cara kerja</a>
                     <a href="{% url 'main:show_main' %}#faq">FAQ</a>
                     {% endif %}
+                    {% endblock nav_links %}
                 </div>
                 <div class="nav__actions">
                     {% if user.is_authenticated %}
@@ -54,42 +56,14 @@
         </nav>
     </header>
 
-    <main>
+    <main class="{% block main_class %}{% endblock main_class %}">
         {% if messages %}
         <div class="flash">{% include "partials/messages.html" %}</div>
         {% endif %}
         {% block content %}{% endblock content %}
     </main>
 
-    {% block footer_band %}
-    <div class="footer-band">
-        <footer class="footer">
-            <div class="footer__cta">
-                <p class="footer__logo">Reware<span>.ui</span></p>
-                <h2 class="footer__title">Siap mulai thrifting<br>di kampus?</h2>
-                <p class="footer__text">
-                    Daftar dengan email @ui.ac.id. Kami kirim kode verifikasi,<br>
-                    lalu admin menyetujui akunmu sebelum mulai<br>
-                    bertransaksi.
-                </p>
-                <form class="signup" action="#" method="post">
-                    {% csrf_token %}
-                    <label class="visually-hidden" for="signup-email">Email UI</label>
-                    <input class="signup__input" id="signup-email" type="email" name="email" placeholder="nama@ui.ac.id" required>
-                    <button class="signup__button" type="submit">Kirim kode</button>
-                </form>
-            </div>
-            <div class="footer__guides">
-                <h3 class="footer__heading">Panduan cepat</h3>
-                <ul class="guide-list">
-                    {% for guide in guides %}
-                    <li><a href="#">{{ guide }}<span aria-hidden="true">→</span></a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </footer>
-    </div>
-    {% endblock footer_band %}
+    {% block footer_band %}{% endblock footer_band %}
     <footer class="site-footer">
         <div class="site-footer__about">
             <a class="site-footer__brand" href="{% url 'main:show_main' %}">
@@ -151,5 +125,6 @@
             </div>
         </div>
     </footer>
+    {% block scripts %}{% endblock scripts %}
 </body>
 </html>
