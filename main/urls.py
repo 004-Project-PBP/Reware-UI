@@ -7,7 +7,6 @@ app_name = 'main'
 urlpatterns = [
     path('', show_main, name='show_main'),
     # module 2 - nuel links
-    path('katalog/', views.brand_directory, name='brand_directory'),
     path('katalog/<int:brand_id>/', views.brand_detail, name='brand_detail'),
     path('katalog/propose/', views.propose_brand, name='propose_brand'),
     path('katalog/<int:brand_id>/edit/', views.edit_proposed_brand, name='edit_proposed_brand'),

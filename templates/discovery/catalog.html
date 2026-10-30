@@ -5,6 +5,12 @@
   {% if brand %} / <span>{{ brand.name }}</span>{% endif %}
 </nav>
 
+{% if user.is_authenticated %}
+<div style="margin-top: 25px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+    <a class="btn btn--primary" href="{% url 'discovery:propose_item' %}">+ Usulkan Produk Baru</a>
+</div>
+{% endif %}
+
 {% if not category %}
   <div class="catalog__chips">
     {% for c in categories %}
