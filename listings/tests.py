@@ -7,6 +7,7 @@ from .models import Listing
 from .forms import ListingForm
 from django.utils import timezone
 from transaksi.models import StubListing, TitikCOD, TransaksiCOD
+from main.models import Brand, Category
 
 
 User = get_user_model()
@@ -45,6 +46,21 @@ class ListingModelTests(TestCase):
         lower = make_listing(self.seller, price=50000, retail_price=40000)
         self.assertIsNone(same.savings_percent)
         self.assertIsNone(lower.savings_percent)
+
+    def test_retail_price_filled_from_brand_midpoint(self):
+        brand = Brand.objects.create(
+            name="Uniqlo", retail_price_min=100000, retail_price_max=300000
+        )
+        listing = make_listing(self.seller, brand=brand, retail_price=None, price=100000)
+        self.assertEqual(listing.retail_price, 200000)
+        self.assertEqual(listing.savings_percent, 50)
+
+    def test_manual_retail_price_is_not_overridden_by_brand(self):
+        brand = Brand.objects.create(
+            name="Uniqlo", retail_price_min=100000, retail_price_max=300000
+        )
+        listing = make_listing(self.seller, brand=brand, retail_price=150000)
+        self.assertEqual(listing.retail_price, 150000)
     
 def form_data(**kwargs):
     data = {
