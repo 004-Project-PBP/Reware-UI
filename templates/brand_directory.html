@@ -110,6 +110,31 @@
                 <span class="chip">{{ brand.followers.count }} pengikut</span>
                 {% endif %}
             </div>
+            <div class="brand-card__actions">
+                <a class="chip" href="{% url 'main:brand_detail' brand.id %}">Detail →</a>
+
+                {# If the logged-in user is the author and it's unverified, give them a quick Edit link right from the directory #}
+                {% if user.is_authenticated and not brand.is_verified and brand.submitted_by == user %}
+                <a class="btn-follow" style="background: var(--green-bg); color: var(--green); border-color: var(--green);" href="{% url 'main:edit_proposed_brand' brand.id %}">
+                    Edit Usulan
+                </a>
+                {% endif %}
+
+                {# Standard Follow Button #}
+                {% if user.is_authenticated %}
+                    {% if user in brand.followers.all %}
+                    <button type="button" class="btn-follow js-follow-btn is-following" data-brand-id="{{ brand.id }}" data-url="{% url 'main:toggle_follow_brand' brand.id %}">
+                        <span class="js-follow-label">Mengikuti</span> · <span class="js-follower-count">{{ brand.followers.count }}</span>
+                    </button>
+                    {% else %}
+                    <button type="button" class="btn-follow js-follow-btn" data-brand-id="{{ brand.id }}" data-url="{% url 'main:toggle_follow_brand' brand.id %}">
+                        <span class="js-follow-label">+ Ikuti</span> · <span class="js-follower-count">{{ brand.followers.count }}</span>
+                    </button>
+                    {% endif %}
+                {% else %}
+                <span class="chip">{{ brand.followers.count }} pengikut</span>
+                {% endif %}
+            </div>
         </article>
         {% empty %}
         <p id="empty-brand-msg" style="grid-column: 1 / -1; text-align: center; color: var(--ink-soft); padding: 48px 0;">

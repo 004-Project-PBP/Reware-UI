@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Usulan Brand: {{ brand.name }} · Reware.ui{% endblock title %}
+
+{% block meta %}
+<link rel="stylesheet" href="{% static 'css/brand.css' %}">
+<script src="{% static 'js/brand-form.js' %}" defer></script>
+{% endblock meta %}
+
+{% block content %}
+<div class="form-shell">
+    <p class="detail-back" style="margin-bottom: 16px;">
+        <a href="{% url 'main:brand_detail' brand.id %}">← Kembali ke Detail Brand</a>
+    </p>
+
+    <div class="form-card">
+        <div class="form-card__bar">
+            <span class="mockup__dots"><span></span><span></span><span></span></span>
+            <span class="form-card__url">reware.ui/brands/{{ brand.id }}/edit</span>
+            <span style="width: 45px;"></span>
+        </div>
+
+        <div class="form-card__body">
+            <h1 class="steps__title" style="font-size: 28px; line-height: 34px; margin-bottom: 6px;">Edit Usulan Brand</h1>
+            <p style="color: var(--ink-soft); margin-bottom: 28px;">
+                Perbarui informasi usulan untuk <strong>{{ brand.name }}</strong> sebelum disetujui oleh admin kampus.
+            </p>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div style="padding: 12px 16px; border-radius: 10px; background: #fff5f5; border: 1px solid #feb2b2; color: #c53030; margin-bottom: 20px; font-size: 13px;">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    
+                    {% if field.name == 'categories' %}
+                        <div class="checkbox-grid">
+                            {{ field }}
+                        </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                    <small style="display: block; margin-top: 4px; color: var(--ink-soft); font-size: 12px;">{{ field.help_text }}</small>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                    <ul class="errorlist"><li>{{ error }}</li></ul>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <div class="form-actions">
+                    <a class="btn btn--nav-light" style="height: 44px; padding: 0 20px;" href="{% url 'main:brand_detail' brand.id %}">Batal</a>
+                    <button type="submit" class="btn btn--primary" style="height: 44px; font-size: 14px;">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

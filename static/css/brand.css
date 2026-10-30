@@ -214,3 +214,102 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* brand proposal form */
+.form-shell {
+    max-width: 720px;
+    margin: 48px auto 80px;
+    padding: 0 16px;
+}
+
+.form-card {
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: var(--surface);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.form-card__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 53px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--neutral-200);
+    background: var(--surface);
+}
+
+.form-card__url {
+    padding: 4px 20px;
+    border-radius: 8px;
+    background: var(--paper);
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.form-card__body {
+    padding: 32px;
+}
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* default django checkbox select multiple for categories */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.checkbox-grid label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1px solid var(--neutral-300);
+    border-radius: 10px;
+    background: var(--paper);
+    font-weight: 400;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.checkbox-grid label:hover {
+    border-color: var(--ink);
+    background: var(--surface);
+}
+
+.checkbox-grid input[type="checkbox"] {
+    accent-color: var(--ink);
+    width: 16px;
+    height: 16px;
+}
+
+.errorlist {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    color: #c53030;
+    font-size: 13px;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--neutral-200);
+}

@@ -10,7 +10,7 @@ class Category(models.Model):
 
 class Brand(models.Model):
     BRAND_TYPES = [
-        ('Not Defined', 'Not Defined'),
+        ('Fast Fashion', 'Fast Fashion'),
         ('Lokal', 'Lokal'),
         ('Premium', 'Premium'),
         ('Vintage', 'Vintage'),
@@ -18,7 +18,7 @@ class Brand(models.Model):
 
     name = models.CharField(max_length=150, unique=True)
     logo_url = models.URLField(max_length=500, blank=True, null=True)
-    brand_type = models.CharField(max_length=50, choices=BRAND_TYPES, default='Not Defined')
+    brand_type = models.CharField(max_length=50, choices=BRAND_TYPES, default='Fast Fashion')
     categories = models.ManyToManyField(Category, related_name='brands')
     
     # Retail price in IDR

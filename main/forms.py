@@ -3,7 +3,7 @@ from .models import Brand, Category
 
 # Add forms here
 
-class BrandProposalForm(forms.Form):
+class BrandProposalForm(forms.ModelForm):
     categories = forms.ModelMultipleChoiceField(
         queryset=Category.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
@@ -63,7 +63,6 @@ class BrandProposalForm(forms.Form):
             )
         return cleaned_data
 
-class BrandEditForm(forms.Form):
+class BrandEditForm(BrandProposalForm):
     # Inherit same fields and style to make it simple :p
-    class Meta(BrandProposalForm.Meta):
-        pass
+    pass
