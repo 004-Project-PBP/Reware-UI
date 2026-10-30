@@ -4,15 +4,8 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 from listings.models import Listing
+from main.models import Category as StubCategory  # Import the StubCategory model from the same app
 
-class StubCategory(models.Model):  
-    name = models.CharField(max_length=100) 
-    co2_saved_per_item_kg = models.FloatField(default=0.0, help_text="Estimasi CO2 (kg) yang dihemat per item")
-    water_saved_per_item_liters = models.FloatField(default=0.0, help_text="Estimasi Air (liter) yang dihemat per item")
-
-    def __str__(self):
-        return self.name
-    
 class StubListing(models.Model):
     class ListingStatus(models.TextChoices):
         TERSEDIA = 'TERSEDIA', 'Tersedia'

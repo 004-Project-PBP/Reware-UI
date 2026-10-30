@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import Http404, HttpResponseForbidden
 from listings.models import Listing
-from .models import StubListing, TitikCOD, TransaksiCOD, StubCategory, Ulasan
+from .models import StubListing, TitikCOD, TransaksiCOD, Ulasan
+from main.models import Category as StubCategory  # Import the StubCategory model from the same app
 from .forms import PengajuanBeliForm,UlasanForm
 from django.db.models import Q, Avg
 from django.views.decorators.http import require_POST
