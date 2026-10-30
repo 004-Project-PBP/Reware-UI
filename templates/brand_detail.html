@@ -101,7 +101,7 @@
 
         <div class="brand-grid">
             {% for item in listings %}
-            <div class="item" style="width: 100%; height: 84px;">
+            <a class="item" href="{% url 'listings:detail' item.pk %}" style="width: 100%; height: 84px; text-decoration: none; color: inherit;">
                 <span class="item__thumb" style="width: 60px; height: 60px;">
                     {% if item.photo %}
                     <img src="{{ item.photo.url }}" alt="{{ item.title }}">
@@ -109,10 +109,10 @@
                 </span>
                 <span class="item__text">
                     <span class="item__name">{{ item.title }}</span>
-                    <span class="item__meta">Rp {{ item.price }} · Ukuran {{ item.size }}</span>
+                    <span class="item__meta">Rp {{ item.price|floatformat:"0g" }} · Ukuran {{ item.size }}</span>
                 </span>
-                <span class="pill pill--green">Hemat {{ item.savings_percentage|default:"60" }}%</span>
-            </div>
+                {% if item.savings_percent %}<span class="pill pill--green">Hemat {{ item.savings_percent }}%</span>{% endif %}
+            </a>
             {% empty %}
             <p style="grid-column: 1 / -1; padding: 36px; border: 1px dashed var(--neutral-300); border-radius: 20px; text-align: center; color: var(--ink-soft);">
                 Belum ada pakaian preloved aktif untuk brand <strong>{{ brand.name }}</strong> saat ini.

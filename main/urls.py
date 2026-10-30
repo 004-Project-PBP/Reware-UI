@@ -12,4 +12,5 @@ urlpatterns = [
     path('katalog/<int:brand_id>/edit/', views.edit_proposed_brand, name='edit_proposed_brand'),
     path('katalog/<int:brand_id>/delete/', views.delete_proposed_brand, name='delete_proposed_brand'),
     path('katalog/<int:brand_id>/toggle-follow/', views.toggle_follow_brand, name='toggle_follow_brand'),
+    path('brand/', views.brand_directory, name='brand_directory'),
 ]

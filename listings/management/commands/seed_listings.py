@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 from listings.models import Listing
+from main.models import Brand
 
 User = get_user_model()
 
@@ -48,6 +49,13 @@ SIZES = ["XS", "S", "M", "L", "XL", "XXL"]
 STATUS_POOL = ["available"] * 7 + ["booked"] * 1 + ["sold"] * 1 + ["archived"] * 1
 
 
+def find_brand(title, brands):
+    """Brand yang namanya jadi awalan judul (cth. 'Uniqlo Oversized Tee' -> Uniqlo)."""
+    lowered = title.lower()
+    matches = [b for b in brands if lowered.startswith(b.name.lower())]
+    return max(matches, key=lambda b: len(b.name), default=None)
+
+
 class Command(BaseCommand):
     help = "Isi database dengan data contoh listing (seed/demo)."
 
@@ -61,11 +69,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         rng = random.Random(42)  # hasil sama setiap kali dijalankan
         conditions = [c[0] for c in Listing._meta.get_field("condition").choices]
+
         if options["clear"]:
             deleted, _ = Listing.objects.filter(
                 seller__username__in=SEED_SELLERS
             ).delete()
             self.stdout.write(f"{deleted} listing seed dihapus.")
+
+        brands = list(Brand.objects.all())
 
         sellers = []
         for username in SEED_SELLERS:
@@ -79,11 +90,14 @@ class Command(BaseCommand):
         for seller in sellers:
             for title, retail in BASE_ITEMS:
                 price = max(10000, round(retail * rng.uniform(0.3, 0.7) / 5000) * 5000)
+                brand = find_brand(title, brands)
                 _, created = Listing.objects.get_or_create(
                     seller=seller,
                     title=title,
                     defaults=dict(
                         description=rng.choice(DESCRIPTIONS),
+                        brand=brand,
+                        category=brand.categories.first() if brand else None,
                         size=rng.choice(SIZES),
                         condition=rng.choice(conditions),
                         price=price,
@@ -94,6 +108,20 @@ class Command(BaseCommand):
                     ),
                 )
                 created_count += int(created)
+
+        # backfill: kaitkan listing seed lama yang belum punya brand
+        linked = 0
+        for listing in Listing.objects.filter(
+            seller__username__in=SEED_SELLERS, brand__isnull=True
+        ):
+            brand = find_brand(listing.title, brands)
+            if brand:
+                listing.brand = brand
+                listing.category = brand.categories.first()
+                listing.save(update_fields=["brand", "category"])
+                linked += 1
+        if linked:
+            self.stdout.write(f"{linked} listing seed dikaitkan ke brand.")
 
         self.stdout.write(self.style.SUCCESS(
             f"{created_count} listing baru dibuat. Total sekarang: {Listing.objects.count()}."

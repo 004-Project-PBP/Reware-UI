@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse, HttpResponseForbidden
-from django.db.models import Avg
+from django.db.models import Avg, Count, Q
 
 from .models import Brand, Category
 from .forms import BrandProposalForm, BrandEditForm
@@ -74,7 +74,11 @@ def show_main(request):
 # module 2 - nuel
 # brand_directory and filter
 def brand_directory(request):
-    brands = Brand.objects.all().order_by('-is_verified', 'name')
+    brands = Brand.objects.annotate(
+        active_listings_count=Count(
+            'listings', filter=Q(listings__status='available'), distinct=True
+        )
+    ).order_by('-is_verified', 'name')
     categories = Category.objects.all()
 
     # Grab query parameters here
@@ -113,7 +117,7 @@ def brand_detail(request, brand_id):
 
     # after Module 3 links the listing model with ForeignKey(Brand, related_name='listings')
     if hasattr(brand, 'listings'):
-        listings = brand.listings.filter(status='Tersedia')
+        listings = brand.listings.filter(status='available')
         active_listings_count = listings.count()
 
         if request.user.is_authenticated and active_listings_count > 0:

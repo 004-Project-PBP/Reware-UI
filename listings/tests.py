@@ -5,6 +5,9 @@ from django.urls import reverse
 
 from .models import Listing
 from .forms import ListingForm
+from django.utils import timezone
+from transaksi.models import StubListing, TitikCOD, TransaksiCOD
+from main.models import Brand, Category
 
 
 User = get_user_model()
@@ -43,6 +46,21 @@ class ListingModelTests(TestCase):
         lower = make_listing(self.seller, price=50000, retail_price=40000)
         self.assertIsNone(same.savings_percent)
         self.assertIsNone(lower.savings_percent)
+
+    def test_retail_price_filled_from_brand_midpoint(self):
+        brand = Brand.objects.create(
+            name="Uniqlo", retail_price_min=100000, retail_price_max=300000
+        )
+        listing = make_listing(self.seller, brand=brand, retail_price=None, price=100000)
+        self.assertEqual(listing.retail_price, 200000)
+        self.assertEqual(listing.savings_percent, 50)
+
+    def test_manual_retail_price_is_not_overridden_by_brand(self):
+        brand = Brand.objects.create(
+            name="Uniqlo", retail_price_min=100000, retail_price_max=300000
+        )
+        listing = make_listing(self.seller, brand=brand, retail_price=150000)
+        self.assertEqual(listing.retail_price, 150000)
     
 def form_data(**kwargs):
     data = {
@@ -67,6 +85,14 @@ class ListingFormTests(TestCase):
         form = ListingForm(data=form_data(title=""))
         self.assertFalse(form.is_valid())
         self.assertIn("title", form.errors)
+
+    def test_form_accepts_brand_and_category(self):
+        brand = Brand.objects.create(
+            name="Uniqlo", retail_price_min=100000, retail_price_max=300000
+        )
+        category = Category.objects.create(name="Atasan")
+        form = ListingForm(data=form_data(brand=brand.pk, category=category.pk))
+        self.assertTrue(form.is_valid())
 
 
 class ListingViewTests(TestCase):
@@ -94,6 +120,20 @@ class ListingViewTests(TestCase):
         resp = self.client.get(reverse("listings:my_listings") + "?status=available")
         self.assertContains(resp, "Uniqlo Tee")
         self.assertNotContains(resp, "Item Arsip")
+
+    def test_my_listings_counts_pending_requests(self):
+        titik = TitikCOD.objects.create(
+            nama_lokasi="Stasiun UI", latitude="-6.360000", longitude="106.830000"
+        )
+        stub = StubListing.mirror_of(self.listing)
+        TransaksiCOD.objects.create(
+            listing=stub, buyer=self.other, seller=self.seller,
+            titik_cod=titik, jadwal_temu=timezone.now(),
+        )
+        self.client.login(username="seller", password="pass12345")
+        resp = self.client.get(reverse("listings:my_listings"))
+        self.assertEqual(resp.context["pending_total"], 1)
+        self.assertEqual(resp.context["listings"][0].pending_count, 1)
 
     def test_my_listings_shows_placeholder_without_photo(self):
         self.client.login(username="seller", password="pass12345")
@@ -232,3 +272,30 @@ class ListingViewTests(TestCase):
     def test_detail_unknown_id_returns_404(self):
         resp = self.client.get(reverse("listings:detail", args=[9999]))
         self.assertEqual(resp.status_code, 404)
+
+    def test_create_with_brand_autofills_retail_price(self):
+        brand = Brand.objects.create(
+            name="Uniqlo", retail_price_min=100000, retail_price_max=300000
+        )
+        self.client.login(username="seller", password="pass12345")
+        self.client.post(
+            reverse("listings:create"),
+            form_data(brand=brand.pk, retail_price="", action="publish"),
+        )
+        new = Listing.objects.get(title="Item Baru")
+        self.assertEqual(new.brand, brand)
+        self.assertEqual(new.retail_price, 200000)
+
+    def test_dashboard_and_detail_show_brand_name(self):
+        brand = Brand.objects.create(
+            name="Zara", retail_price_min=100000, retail_price_max=300000
+        )
+        self.listing.brand = brand
+        self.listing.save()
+        self.client.login(username="seller", password="pass12345")
+        self.assertContains(self.client.get(reverse("listings:my_listings")), "Zara")
+        self.assertContains(
+            self.client.get(reverse("listings:detail", args=[self.listing.pk])), "Zara"
+        )
+
+    

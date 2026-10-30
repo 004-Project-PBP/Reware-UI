@@ -7,13 +7,18 @@ from django.http import Http404, JsonResponse
 
 from .forms import ListingForm
 from .models import Listing
+from django.db.models import Count, Q
+from transaksi.models import TransaksiCOD
 
 
 
 @login_required
 def my_listings(request):
+    pending = Q(transaksi_mirror__transaksi_cod__status=TransaksiCOD.StatusTransaksi.DIAJUKAN)
     all_listings = Listing.objects.filter(seller=request.user)
-    listings = all_listings
+    listings = all_listings.select_related("brand").annotate(
+        pending_count=Count("transaksi_mirror__transaksi_cod", filter=pending)
+    )
     status = request.GET.get("status")
     if status in Listing.Status.values:
         listings = listings.filter(status=status)
@@ -21,11 +26,16 @@ def my_listings(request):
         "total": all_listings.count(),
         "available": all_listings.filter(status=Listing.Status.AVAILABLE).count(),
     }
+    pending_total = TransaksiCOD.objects.filter(
+        listing__source__seller=request.user,
+        status=TransaksiCOD.StatusTransaksi.DIAJUKAN,
+    ).count()
     return render(request, "listings/my_listings.html", {
         "listings": listings,
         "statuses": Listing.Status.choices,
         "active_status": status,
         "stats": stats,
+        "pending_total": pending_total,
     })
 
 
@@ -90,7 +100,7 @@ def listing_set_status(request, pk):
     return redirect("listings:my_listings")
 
 def listing_detail(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
+    listing = get_object_or_404(Listing.objects.select_related("brand", "category"), pk=pk)
     # item yang diarsipkan hanya bisa dilihat pemiliknya
     if listing.status == Listing.Status.ARCHIVED and listing.seller != request.user:
         raise Http404
