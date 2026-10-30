@@ -3,19 +3,16 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from listings.models import Listing
 
-#Temporary stub model for module 2's category
-class StubCategory(models.Model):
-    """
-    Replaces Module 2's Category/Public API data & Admin's Environmental Impact Factors.
-    """
-    name = models.CharField(max_length=100) # e.g., "Pakaian", "Elektronik", "Buku"
+class StubCategory(models.Model):  
+    name = models.CharField(max_length=100) 
     co2_saved_per_item_kg = models.FloatField(default=0.0, help_text="Estimasi CO2 (kg) yang dihemat per item")
     water_saved_per_item_liters = models.FloatField(default=0.0, help_text="Estimasi Air (liter) yang dihemat per item")
 
     def __str__(self):
         return self.name
-#Temporary stub model for Module 3 Listing, to be replaced with actual Listing model when available
+    
 class StubListing(models.Model):
     class ListingStatus(models.TextChoices):
         TERSEDIA = 'TERSEDIA', 'Tersedia'
@@ -85,8 +82,8 @@ class StubListing(models.Model):
 
 class TitikCOD(models.Model):
     
-    # Master Titik COD Kampus (Stasiun UI, Perpustakaan Pusat, Balairung, Halte Bikun, dll.)
-    # Integrated with WebGIS / Google Maps API.
+    """Master Titik COD Kampus (Stasiun UI, Perpustakaan Pusat, Balairung, Halte Bikun, dll.)
+    Integrated with WebGIS / Google Maps API."""
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nama_lokasi = models.CharField(max_length=150) 
@@ -101,8 +98,7 @@ class TitikCOD(models.Model):
 
 class TransaksiCOD(models.Model):
     
-    # Alur Status Transaksi: Diajukan -> Disetujui -> Selesai / Dibatalkan
-    
+    """Alur Status Transaksi: Diajukan -> Disetujui -> Selesai / Dibatalkan"""    
     class StatusTransaksi(models.TextChoices):
         DIAJUKAN = 'DIAJUKAN', 'Diajukan'
         DISETUJUI = 'DISETUJUI', 'Disetujui'
@@ -176,7 +172,7 @@ class TransaksiCOD(models.Model):
 
 class Ulasan(models.Model):
     
-    # Two-way review system: Buyer rates Seller, Seller rates Buyer after status is 'SELESAI'.
+    """Two-way review system: Buyer rates Seller, Seller rates Buyer after status is 'SELESAI'."""
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     transaksi = models.ForeignKey(
