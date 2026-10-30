@@ -25,12 +25,7 @@
             </button>
             <div class="nav__menu" id="nav-menu">
                 <div class="nav__links">
-                    {% block nav_links %}
-                    <a href="{% url 'discovery:catalog' %}">Katalog</a>
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'listings:my_listings' %}">Lapak saya</a>
-                    <a href="{% url 'transaksi:riwayat_transaksi' %}">Transaksi</a>
-                    {% else %}
+                    <a href="{% url 'main:brand_directory' %}">Katalog</a>
                     <a href="{% url 'main:show_main' %}#cara-kerja">Cara kerja</a>
                     <a href="{% url 'main:show_main' %}#faq">FAQ</a>
                     {% endif %}

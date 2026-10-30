@@ -3,8 +3,5 @@ gunicorn
 psycopg2-binary
 python-dotenv
 whitenoise
-<<<<<<< HEAD
 pillow
-=======
 requests
->>>>>>> 71ca746 (seeding-and-base-brand-page)
