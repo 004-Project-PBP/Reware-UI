@@ -86,6 +86,14 @@ class ListingFormTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("title", form.errors)
 
+    def test_form_accepts_brand_and_category(self):
+        brand = Brand.objects.create(
+            name="Uniqlo", retail_price_min=100000, retail_price_max=300000
+        )
+        category = Category.objects.create(name="Atasan")
+        form = ListingForm(data=form_data(brand=brand.pk, category=category.pk))
+        self.assertTrue(form.is_valid())
+
 
 class ListingViewTests(TestCase):
     def setUp(self):
@@ -264,3 +272,30 @@ class ListingViewTests(TestCase):
     def test_detail_unknown_id_returns_404(self):
         resp = self.client.get(reverse("listings:detail", args=[9999]))
         self.assertEqual(resp.status_code, 404)
+
+    def test_create_with_brand_autofills_retail_price(self):
+        brand = Brand.objects.create(
+            name="Uniqlo", retail_price_min=100000, retail_price_max=300000
+        )
+        self.client.login(username="seller", password="pass12345")
+        self.client.post(
+            reverse("listings:create"),
+            form_data(brand=brand.pk, retail_price="", action="publish"),
+        )
+        new = Listing.objects.get(title="Item Baru")
+        self.assertEqual(new.brand, brand)
+        self.assertEqual(new.retail_price, 200000)
+
+    def test_dashboard_and_detail_show_brand_name(self):
+        brand = Brand.objects.create(
+            name="Zara", retail_price_min=100000, retail_price_max=300000
+        )
+        self.listing.brand = brand
+        self.listing.save()
+        self.client.login(username="seller", password="pass12345")
+        self.assertContains(self.client.get(reverse("listings:my_listings")), "Zara")
+        self.assertContains(
+            self.client.get(reverse("listings:detail", args=[self.listing.pk])), "Zara"
+        )
+
+    
