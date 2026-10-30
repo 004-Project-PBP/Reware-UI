@@ -56,6 +56,8 @@
         <span class="ld-chip">Ukuran {{ listing.size }}</span>
         <span class="ld-chip">{{ listing.get_condition_display }}</span>
         <span class="ld-chip">Stok {{ listing.stock }}</span>
+        {% if listing.brand %}<span class="ld-chip">{{ listing.brand.name }}</span>{% endif %}
+        {% if listing.category %}<span class="ld-chip">{{ listing.category.name }}</span>{% endif %}
       </div>
 
       {% if listing.description %}

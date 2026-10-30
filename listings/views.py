@@ -16,7 +16,7 @@ from transaksi.models import TransaksiCOD
 def my_listings(request):
     pending = Q(transaksi_mirror__transaksi_cod__status=TransaksiCOD.StatusTransaksi.DIAJUKAN)
     all_listings = Listing.objects.filter(seller=request.user)
-    listings = all_listings.annotate(
+    listings = all_listings.select_related("brand").annotate(
         pending_count=Count("transaksi_mirror__transaksi_cod", filter=pending)
     )
     status = request.GET.get("status")
@@ -100,7 +100,7 @@ def listing_set_status(request, pk):
     return redirect("listings:my_listings")
 
 def listing_detail(request, pk):
-    listing = get_object_or_404(Listing, pk=pk)
+    listing = get_object_or_404(Listing.objects.select_related("brand", "category"), pk=pk)
     # item yang diarsipkan hanya bisa dilihat pemiliknya
     if listing.status == Listing.Status.ARCHIVED and listing.seller != request.user:
         raise Http404
