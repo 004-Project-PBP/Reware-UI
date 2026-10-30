@@ -4,12 +4,14 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.db.models import Case, Count, ExpressionWrapper, F, FloatField, Q, Value, When
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 
 from .models import (BlockedKeyword, Brand, Category, CuratedCollection, Item,
                      SavedSearch, SearchHistory, WishlistItem)
+
+from .forms import ItemProposalForm
 
 PAGE_SIZE = 8
 SORT_CHOICES = (("terbaru", "Terbaru"), ("termurah", "Termurah"), ("hemat", "Paling Hemat"))
@@ -255,3 +257,19 @@ def admin_search_stats(request):
         "collections": CuratedCollection.objects.all(),
         "blocked": BlockedKeyword.objects.all(),
     })
+
+# item proposal forms
+@login_required
+def propose_item(request):
+    if request.method == 'POST':
+        # CRITICAL: Pass request.FILES to handle image uploads
+        form = ItemProposalForm(request.POST, request.FILES)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.seller = request.user  # Assign current logged-in user as seller
+            item.save()
+            return redirect('discovery:catalog') # Change to your target view/url name
+    else:
+        form = ItemProposalForm()
+
+    return render(request, 'discovery/propose_item.html', {'form': form})

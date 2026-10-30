@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tambah Listing Preloved · Reware.ui{% endblock title %}
+
+{% block content %}
+<div class="form-shell" style="max-width: 720px; margin: 48px auto; padding: 0 16px;">
+    <div class="form-card" style="border: 1px solid var(--line); border-radius: 24px; background: var(--surface); padding: 32px;">
+        <h1 style="font-size: 26px; margin-bottom: 8px;">Tambah Item Preloved Baru</h1>
+        <p style="color: var(--ink-soft); margin-bottom: 24px;">Jual pakaian preloved kamu ke sesama mahasiswa UI.</p>
+
+        {# CRITICAL: enctype="multipart/form-data" is required for image fields #}
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            {% for field in form %}
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 6px;">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: var(--ink-soft);">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                <div style="color: #c53030; font-size: 13px; margin-top: 4px;">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px;">
+                <a class="btn btn--nav-light" href="{% url 'discovery:catalog' %}">Batal</a>
+                <button type="submit" class="btn btn--primary">Posting Item</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

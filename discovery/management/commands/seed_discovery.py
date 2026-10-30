@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from discovery.models import Brand, Category, Item
+import random, requests
 
 CATS = ["Atasan", "Bawahan", "Outer", "Sepatu", "Aksesori"]
 ITEMS = [
@@ -50,3 +51,75 @@ class Command(BaseCommand):
                 src = Path(settings.BASE_DIR) / "static" / "img" / image[0]
                 item.image.save(image[0], ContentFile(src.read_bytes()), save=True)
         self.stdout.write(self.style.SUCCESS("Katalog discovery ter-seed."))
+
+        # seeding extra items from DummyJSON API
+        # Premade attribute pools for fields DummyJSON doesn't have
+        SIZES = ["S", "M", "L", "XL"]
+        CONDITIONS = ["seperti_baru", "baik", "cukup"]
+        LOCATIONS = ["Balairung", "Perpustakaan Pusat", "Pusat Kegiatan Mahasiswa", "Fasilkom UI", "FEB UI"]
+
+        # Map DummyJSON categories to Category names
+        category_map = {
+            'mens-shirts': 'Atasan',
+            'tops': 'Atasan',
+            'womens-dresses': 'Bawahan',
+            'mens-shoes': 'Sepatu',
+            'womens-shoes': 'Sepatu',
+            'womens-bags': 'Aksesori',
+            'sunglasses': 'Aksesori',
+        }
+
+        USD_TO_IDR = 18000 # arbitrary value
+        created_count = 0
+
+        for api_cat, cat_name in category_map.items():
+            url = f'https://dummyjson.com/products/category/{api_cat}'
+            try:
+                response = requests.get(url, timeout=10)
+                if response.status_code == 200:
+                    products = response.json().get('products', [])
+                    for product in products:
+                        name = product.get('title')
+                        brand_name = product.get('brand') or f"{name.split()[0]} Studio"
+                        
+                        raw_usd = float(product.get('price', 25))
+                        price = int(raw_usd * USD_TO_IDR * 0.15)
+                        disc = int(product.get('discountPercentage', random.randint(40, 70)))
+                        retail_price = round(price / (1 - disc / 100))
+
+                        size = random.choice(SIZES)
+                        cond = random.choice(CONDITIONS)
+                        cod = random.choice(LOCATIONS)
+                        
+                        b, _ = Brand.objects.get_or_create(name=brand_name)
+                        b.categories.add(cats[cat_name])
+
+                        item, _ = Item.objects.get_or_create(
+                            name=name,
+                            defaults=dict(
+                                category=cats[cat_name],
+                                brand=b,
+                                seller=seller,
+                                price=price,
+                                retail_price=retail_price,
+                                size=size,
+                                condition=cond,
+                                cod_location=cod
+                            )
+                        )
+
+                        thumb_url = product.get('thumbnail')
+                        if thumb_url and not item.image:
+                            try:
+                                img_resp = requests.get(thumb_url, timeout=5)
+                                if img_resp.status_code == 200:
+                                    filename = f"{name.lower().replace(' ', '_')[:30]}.jpg"
+                                    item.image.save(filename, ContentFile(img_resp.content), save=True)
+                            except Exception:
+                                pass
+
+                        created_count += 1
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Error fetching {api_cat}: {e}"))
+
+        self.stdout.write(self.style.SUCCESS(f"Successfully seeded {created_count} extra items from DummyJSON API."))

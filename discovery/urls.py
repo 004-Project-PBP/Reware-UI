@@ -11,6 +11,7 @@ urlpatterns = [
     path("pencarian-tersimpan/", views.saved_search_page, name="saved_searches"),
     path("riwayat/", views.history_page, name="history"),
     path("admin/statistik/", views.admin_search_stats, name="admin_stats"),
+    path('item/add/', views.propose_item, name='propose_item'),
     # AJAX endpoints
     path("api/katalog/", views.api_catalog, name="api_catalog"),
     path("api/wishlist/toggle/", views.api_wishlist_toggle, name="api_wishlist_toggle"),
