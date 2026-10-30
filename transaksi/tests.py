@@ -98,3 +98,39 @@ class NavigationLinkTests(TestCase):
         resp = self.client.get(reverse("main:show_main"))
         for name in ("listings:create", "listings:my_listings", "transaksi:riwayat_transaksi"):
             self.assertContains(resp, reverse(name))
+
+
+class PageRenderTests(TestCase):
+    """Every page in the buyer/seller flow should render for a logged-in user."""
+
+    def setUp(self):
+        self.user = User.objects.create_user("u", password="pw12345!")
+        self.client.force_login(self.user)
+
+    def test_pages_render(self):
+        for name in ("riwayat_transaksi", "daftar_ulasan", "dashboard_dampak"):
+            resp = self.client.get(reverse(f"transaksi:{name}"))
+            self.assertEqual(resp.status_code, 200, name)
+
+    def test_riwayat_renders_with_transactions(self):
+        seller = User.objects.create_user("s", password="pw12345!")
+        listing = Listing.objects.create(
+            seller=seller, title="Kaos", price=1000, cod_point="x"
+        )
+        titik = TitikCOD.objects.create(nama_lokasi="x", latitude=0, longitude=0)
+        TransaksiCOD.objects.create(
+            listing=StubListing.mirror_of(listing), buyer=self.user, seller=seller,
+            titik_cod=titik, jadwal_temu=timezone.now() + timedelta(days=1),
+        )
+        resp = self.client.get(reverse("transaksi:riwayat_transaksi"))
+        self.assertContains(resp, "Cek Detail Pesanan")
+
+    def test_pengajuan_form_renders(self):
+        seller = User.objects.create_user("s2", password="pw12345!")
+        listing = Listing.objects.create(
+            seller=seller, title="Kemeja", price=1000, cod_point="x"
+        )
+        resp = self.client.get(
+            reverse("transaksi:ajukan_beli", args=[StubListing.mirror_of(listing).id])
+        )
+        self.assertEqual(resp.status_code, 200)
