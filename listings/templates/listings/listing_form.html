@@ -16,6 +16,8 @@
   .lf-field input[type=text], .lf-field input[type=number], .lf-field textarea {
     padding: 11px 14px; border: 1px solid #E2E4E9; border-radius: 10px; font-size: 14px; font-family: inherit; background: #fff; width: 100%; box-sizing: border-box; }
   .lf-field input:focus, .lf-field textarea:focus { outline: 2px solid #12151A22; border-color: #12151A; }
+  .lf-field select { padding: 11px 14px; border: 1px solid #E2E4E9; border-radius: 10px; font-size: 14px; font-family: inherit; background: #fff; width: 100%; box-sizing: border-box; }
+  .lf-hint { font-size: 11px; color: #A8ABB3; }
   .lf-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .lf-row2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .lf-seg { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -62,6 +64,20 @@
           <label for="{{ form.title.id_for_label }}">Judul Item</label>
           {{ form.title }}
           {% for e in form.title.errors %}<p class="lf-err">{{ e }}</p>{% endfor %}
+        </div>
+
+        <div class="lf-row2">
+          <div class="lf-field">
+            <label for="{{ form.brand.id_for_label }}">Brand</label>
+            {{ form.brand }}
+            <span class="lf-hint">data dari Direktori Brand</span>
+            {% for e in form.brand.errors %}<p class="lf-err">{{ e }}</p>{% endfor %}
+          </div>
+          <div class="lf-field">
+            <label for="{{ form.category.id_for_label }}">Kategori</label>
+            {{ form.category }}
+            {% for e in form.category.errors %}<p class="lf-err">{{ e }}</p>{% endfor %}
+          </div>
         </div>
 
         <div class="lf-field">
@@ -178,6 +194,22 @@
     retailEl.value = digits(retailEl.value);
   });
 
+  // isi harga ritel otomatis dari titik tengah range harga brand
+  const brandEl = document.getElementById("{{ form.brand.id_for_label }}");
+  let autoFilled = false;
+  function fillFromBrand() {
+    const opt = brandEl.options[brandEl.selectedIndex];
+    const min = parseInt(opt.dataset.min || "0", 10);
+    const max = parseInt(opt.dataset.max || "0", 10);
+    if (!max) return;
+    if (!digits(retailEl.value) || autoFilled) {
+      retailEl.value = fmt(String(Math.floor((min + max) / 2)));
+      autoFilled = true;
+      updateSavings();
+    }
+  }
+  brandEl.addEventListener("change", fillFromBrand);
+  retailEl.addEventListener("input", () => { autoFilled = false; });
   priceEl.value = fmt(priceEl.value);
   retailEl.value = fmt(retailEl.value);
   updateSavings();
