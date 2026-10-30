@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.core.paginator import Paginator
+from listings.models import Listing as SourceListing  
 
 # 1. BUYER & SELLER: READ & FILTER HISTORY
 @login_required
@@ -115,7 +116,12 @@ def ajukan_beli(request,listing_id):
     """
     Buyer submits and order request on an avail listing 
     """
-    listing = get_object_or_404(StubListing,id=listing_id)
+    source_listing = SourceListing.objects.filter(id=listing_id).first()
+    if source_listing:
+        listing = StubListing.mirror_of(source_listing)
+    else:
+        listing = get_object_or_404(StubListing, id=listing_id)
+    
     if listing.status!= StubListing.ListingStatus.TERSEDIA:
         messages.error (request, "Maaf, item ini sudah tidak tersedia")
         return redirect ('transaksi:riwayat_transaksi')
@@ -243,7 +249,6 @@ def respon_pengajuan_ajax(request,transaksi_id):
     elif aksi=='tolak':
         alasan=request.POST.get('alasan','Ditolak oleh penjual')
         transaksi.status= TransaksiCOD.StatusTransaksi.DIBATALKAN
-        transaksi.alasan_batal= alasan
 
         transaksi.alasan_batal = strip_tags(alasan) #sanitization to prevent XSS attacks
         

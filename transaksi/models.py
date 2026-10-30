@@ -3,19 +3,19 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from listings.models import Listing
 
-#Temporary stub model for module 2's category
-class StubCategory(models.Model):
+class StubCategory(models.Model):  
     """
     Replaces Module 2's Category/Public API data & Admin's Environmental Impact Factors.
     """
-    name = models.CharField(max_length=100) # e.g., "Pakaian", "Elektronik", "Buku"
+    name = models.CharField(max_length=100) 
     co2_saved_per_item_kg = models.FloatField(default=0.0, help_text="Estimasi CO2 (kg) yang dihemat per item")
     water_saved_per_item_liters = models.FloatField(default=0.0, help_text="Estimasi Air (liter) yang dihemat per item")
 
     def __str__(self):
         return self.name
-#Temporary stub model for Module 3 Listing, to be replaced with actual Listing model when available
+    
 class StubListing(models.Model):
     class ListingStatus(models.TextChoices):
         TERSEDIA = 'TERSEDIA', 'Tersedia'
