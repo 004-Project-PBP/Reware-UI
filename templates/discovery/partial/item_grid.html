@@ -9,6 +9,6 @@
   <p class="card__meta">{{ item.brand.name }} · {{ item.category.name }} · {{ item.size }} · {{ item.get_condition_display }}</p>
   <p class="card__price">{{ item.price_rp }} {% if item.retail_price %}<s>{{ item.retail_rp }}</s>{% endif %}</p>
   <p class="card__cod">COD: {{ item.cod_location }}</p>
-  <button class="btn btn--nav-light card__contact" data-url="{% url 'discovery:api_seller_contact' item.id %}">Kontak seller</button>
+  <a href="{% url 'transaksi:ajukan_dari_listing' item.id %}" class="btn btn--nav-light card__contact">Kontak seller</a>
 </article>
 {% empty %}<p class="catalog__empty">Tidak ada item yang cocok dengan filter.</p>{% endfor %}
