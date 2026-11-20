@@ -1,8 +1,12 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views, api_views
 
 app_name = 'transaksi'
-
+router = DefaultRouter()
+router.register(r'titik-cod', api_views.TitikCODViewSet, basename='api-titik-cod')
+router.register(r'transaksi', api_views.TransaksiCODViewSet, basename='api-transaksi')
+router.register(r'ulasan', api_views.UlasanViewSet, basename='api-ulasan')
 urlpatterns = [
     # History and Details
     path('riwayat/', views.transaction_history, name='riwayat_transaksi'),
@@ -27,4 +31,6 @@ urlpatterns = [
     path('dampak/', views.dashboard_dampak, name='dashboard_dampak'),
     path('api/dampak/', views.api_dampak_data, name='api_dampak_data'),
     path('api/navbar-counter/', views.api_navbar_counter, name='api_navbar_counter'),
+
+    path('api/', include(router.urls)),
 ]

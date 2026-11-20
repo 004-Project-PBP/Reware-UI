@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'listings',
     'discovery',
     'transaksi',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
